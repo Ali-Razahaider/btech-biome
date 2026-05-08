@@ -93,9 +93,6 @@ export default function Community() {
           </div>
 
           <div className={cn("space-y-3 transition-opacity duration-300", isLoadingLeaderboard ? "opacity-50" : "opacity-100")}>
-            {displayLeaderboard.map((hero, idx) => (
-              <div
-                key={hero.user_id}
                 className={cn(
                   "flex items-center justify-between p-4 rounded-2xl transition-all border",
                   hero.isMe ? "bg-orange/10 border-orange/20" : "bg-black/5 border-transparent"
