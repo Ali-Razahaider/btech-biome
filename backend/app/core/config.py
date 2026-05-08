@@ -42,6 +42,7 @@ def load_config() -> ConfigDict:
     return {
         "database_url": os.getenv("DATABASE_URL", ""),
         "supabase_url": supabase_url,
+        "supabase_anon_key": os.getenv("SUPABASE_ANON_KEY", ""),
         "supabase_jwks_url": os.getenv("SUPABASE_JWKS_URL", ""),
         "supabase_jwt_issuer": supabase_jwt_issuer,
         "supabase_jwt_audience": os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated"),
