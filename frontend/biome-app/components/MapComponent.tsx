@@ -1,25 +1,36 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useState, useRef } from "react";
+import Map, { Marker, Popup, NavigationControl } from "react-map-gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { useEcoStore } from "@/store/useStore";
+import { MapPin, Info, Zap, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Fix for default marker icons in Leaflet + Next.js
-const icon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 interface MapProps {
-  center: [number, number];
+  center: [number, number]; // [lat, lng]
   aqi: number;
 }
 
 export default function MapComponent({ center, aqi }: MapProps) {
-  const { biomassZones, setSelectedZone } = useEcoStore();
+  const { biomassZones, selectedZone, setSelectedZone } = useEcoStore();
+  const [viewState, setViewState] = useState({
+    latitude: center[0] || 31.5204,
+    longitude: center[1] || 74.3587,
+    zoom: 10
+  });
+
+  const mapRef = useRef<any>(null);
+
+  useEffect(() => {
+    setViewState((prev) => ({
+      ...prev,
+      latitude: center[0],
+      longitude: center[1]
+    }));
+  }, [center]);
 
   const getAQIColor = (val: number) => {
     if (val < 50) return "#55D688"; // Green
@@ -35,93 +46,155 @@ export default function MapComponent({ center, aqi }: MapProps) {
     }
   };
 
+  // Convert biomassZones to GeoJSON for circular visualizations if needed, 
+  // but for now let's use Markers with custom icons to match the design.
+  
   return (
-    <div className="w-full h-full z-0 relative">
-      <MapContainer 
-        center={center} 
-        zoom={10} 
-        scrollWheelZoom={false} 
-        style={{ height: "100%", width: "100%", background: "#F8FAF9" }}
+    <div className="w-full h-full z-0 relative rounded-[2rem] overflow-hidden">
+      <Map
+        {...viewState}
+        onMove={evt => setViewState(evt.viewState)}
+        mapStyle="mapbox://styles/mapbox/light-v11"
+        mapboxAccessToken={MAPBOX_TOKEN}
+        style={{ width: "100%", height: "100%" }}
+        ref={mapRef}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
-        
+        <NavigationControl position="top-right" />
         {/* User Location Marker */}
-        <Marker position={center} icon={icon}>
-          <Popup className="custom-popup">
-            <div className="p-2 min-w-[150px]">
-              <h3 className="font-extrabold text-header mb-2">Live AQI</h3>
-              <div className="flex items-center justify-between bg-black/5 p-3 rounded-xl">
-                <span className="text-[10px] font-bold text-foreground/40 uppercase">Air Index</span>
-                <span className="font-black text-lg" style={{ color: getAQIColor(aqi) }}>{aqi}</span>
+        <Marker 
+          latitude={center[0]} 
+          longitude={center[1]} 
+          anchor="bottom"
+        >
+          <div className="group relative cursor-pointer">
+            <div className="h-10 w-10 bg-white rounded-2xl shadow-xl border-2 border-green flex items-center justify-center text-green transform group-hover:scale-110 transition-transform">
+              <MapPin size={24} fill="currentColor" fillOpacity={0.2} />
+            </div>
+            
+            {/* Simple Tooltip on Hover */}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+              <div className="bg-header text-white px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap shadow-xl">
+                LIVE AQI: {aqi}
               </div>
             </div>
-          </Popup>
+          </div>
         </Marker>
 
-        {/* Biomass Zones */}
+        {/* Biomass Zones as Markers */}
         {biomassZones.map((zone) => (
-          <Circle 
+          <Marker
             key={zone.id}
-            center={zone.coords} 
-            radius={5000} 
-            eventHandlers={{
-              click: () => setSelectedZone(zone),
+            latitude={zone.coords[0]}
+            longitude={zone.coords[1]}
+            anchor="center"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              setSelectedZone(zone);
             }}
-            pathOptions={{ 
-              fillColor: getPotentialColor(zone.potential), 
-              fillOpacity: 0.4, 
-              color: getPotentialColor(zone.potential),
-              weight: 2,
-            }} 
           >
-            <Popup className="custom-popup">
-              <div className="p-2 min-w-[180px]">
-                <h3 className="font-extrabold text-header mb-1">{zone.name}</h3>
-                <p className="text-[10px] font-bold text-foreground/40 uppercase mb-3">Biomass Zone</p>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Potential</span>
-                    <span className="font-bold text-sm" style={{ color: getPotentialColor(zone.potential) }}>{zone.potential}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Crop</span>
-                    <span className="font-bold text-sm text-header">{zone.cropType}</span>
-                  </div>
+            <div 
+              className="relative cursor-pointer"
+            >
+              {/* Pulse effect for High Potential */}
+              {zone.potential === "High" && (
+                <div 
+                  className="absolute inset-0 rounded-full animate-ping opacity-20"
+                  style={{ backgroundColor: getPotentialColor(zone.potential) }}
+                />
+              )}
+              
+              <div 
+                className={cn(
+                  "h-12 w-12 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white transition-all hover:scale-125",
+                  selectedZone?.id === zone.id ? "scale-125 ring-4 ring-offset-2" : ""
+                )}
+                style={{ 
+                  backgroundColor: getPotentialColor(zone.potential),
+                  boxShadow: `0 0 20px ${getPotentialColor(zone.potential)}40`,
+                  ["--tw-ring-color" as any]: getPotentialColor(zone.potential)
+                }}
+              >
+                <Zap size={20} fill="currentColor" />
+              </div>
+
+              {/* Label for the zone */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2">
+                <div className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md border border-black/5 shadow-sm">
+                   <p className="text-[8px] font-black text-header whitespace-nowrap uppercase tracking-tight">{zone.name}</p>
                 </div>
-                
+              </div>
+            </div>
+          </Marker>
+        ))}
+
+        {/* Popup for Selected Zone */}
+        {selectedZone && (
+          <Popup
+            latitude={selectedZone.coords[0]}
+            longitude={selectedZone.coords[1]}
+            anchor="bottom"
+            onClose={() => setSelectedZone(null)}
+            closeButton={false}
+            className="custom-mapbox-popup"
+            offset={30}
+          >
+            <div className="p-4 min-w-[200px] bg-white rounded-3xl">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-extrabold text-header text-lg leading-tight">{selectedZone.name}</h3>
+                  <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Biomass Intelligence</p>
+                </div>
                 <button 
-                  onClick={() => setSelectedZone(zone)}
-                  className="w-full mt-4 bg-header text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-widest hover:bg-black/80 transition-colors"
+                  onClick={() => setSelectedZone(null)}
+                  className="p-1.5 hover:bg-black/5 rounded-full transition-colors"
                 >
-                  Analyze Site
+                  <X size={16} />
                 </button>
               </div>
-            </Popup>
-          </Circle>
-        ))}
-      </MapContainer>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center bg-black/5 p-3 rounded-2xl">
+                  <div className="flex items-center gap-2">
+                    <Zap size={14} className="text-orange" />
+                    <span className="text-[10px] font-bold text-foreground/60 uppercase">Potential</span>
+                  </div>
+                  <span className="font-bold text-sm" style={{ color: getPotentialColor(selectedZone.potential) }}>{selectedZone.potential}</span>
+                </div>
+                <div className="flex justify-between items-center bg-black/5 p-3 rounded-2xl">
+                  <div className="flex items-center gap-2">
+                    <Info size={14} className="text-blue-500" />
+                    <span className="text-[10px] font-bold text-foreground/60 uppercase">Crop Type</span>
+                  </div>
+                  <span className="font-bold text-sm text-header">{selectedZone.cropType}</span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => setSelectedZone(selectedZone)}
+                className="w-full mt-5 bg-header text-white text-[10px] font-bold py-3 rounded-2xl uppercase tracking-widest hover:bg-black/80 transition-all shadow-lg shadow-black/10 active:scale-95"
+              >
+                Analyze AI Feasibility
+              </button>
+            </div>
+          </Popup>
+        )}
+      </Map>
 
       <style jsx global>{`
-        .leaflet-container {
-          font-family: inherit;
+        .custom-mapbox-popup .mapboxgl-popup-content {
+          padding: 0 !important;
+          background: transparent !important;
+          border-radius: 32px !important;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+          border: none !important;
         }
-        .custom-popup .leaflet-popup-content-wrapper {
-          background: #FFFFFF !important;
-          color: #334155 !important;
-          border-radius: 20px !important;
-          border: 1px solid rgba(0,0,0,0.05);
-          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important;
-          padding: 4px !important;
+        .custom-mapbox-popup .mapboxgl-popup-tip {
+          border-top-color: white !important;
         }
-        .custom-popup .leaflet-popup-tip {
-          background: #FFFFFF !important;
+        .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
+          display: none !important;
         }
       `}</style>
     </div>
   );
 }
-

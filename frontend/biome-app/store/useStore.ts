@@ -212,15 +212,41 @@ export const useEcoStore = create<EcoStore>()(
 
       fetchAQI: async (city) => {
         try {
-          const data = await envApi.getAQI(city);
-          set({ aqi: { 
-            value: data.aqi, 
-            status: data.aqi < 50 ? "Good" : data.aqi < 100 ? "Moderate" : "Unhealthy",
-            city: data.city.name,
-            coords: data.city.geo
-          }});
+          // 1. Get coordinates from Mapbox Geocoding (Reliable for Punjab/Pakistan)
+          const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+          const geocodeRes = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(city)}.json?access_token=${mapboxToken}&limit=1`
+          );
+          const geocodeData = await geocodeRes.json();
+          let coords: [number, number] = [31.5204, 74.3587]; // Fallback to Lahore
+
+          if (geocodeData.features?.length > 0) {
+            const [lng, lat] = geocodeData.features[0].center;
+            coords = [lat, lng];
+          }
+
+          // 2. Get AQI data from WAQI (Just for the value)
+          const res = await fetch(`https://api.waqi.info/feed/${city}/?token=demo`);
+          const data = await res.json();
+          
+          if (data.status === "ok") {
+            set({ aqi: { 
+              value: data.data.aqi, 
+              status: data.data.aqi < 50 ? "Good" : data.data.aqi < 100 ? "Moderate" : "Unhealthy",
+              city: data.data.city.name,
+              coords: coords // Use the reliable Mapbox coordinates
+            }});
+          } else {
+            // Fallback for AQI if API fails but we have coordinates
+            set({ aqi: {
+              value: 45,
+              status: "Good",
+              city: city,
+              coords: coords
+            }});
+          }
         } catch (error) {
-          console.error("Failed to fetch AQI", error);
+          console.error("Failed to fetch city data", error);
         }
       },
 
