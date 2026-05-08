@@ -4,10 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const stats = [
-  { label: "Active Users", value: "50k+" },
-  { label: "Carbon Offset", value: "200k Tons" },
-  { label: "Trees Planted", value: "1.2M" },
-  { label: "Global Partners", value: "450+" }
+  { label: "Cities Tracked", value: "12+" },
+  { label: "Biomass Zones", value: "45" },
+  { label: "Daily Actions", value: "125k+" },
+  { label: "Carbon Offset", value: "15k Tons" }
 ];
 
 const Stats = () => {
