@@ -40,8 +40,6 @@ app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 @app.get("/")
 def read_root():
     return {"message": "Hello, world"}
-
-
 @app.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db_session)):
     await db.execute(text("SELECT 1"))

@@ -1,316 +1,160 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Leaf, Wind, MapPin, Target, Sparkles, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { useEcoStore } from "@/store/useStore";
-import Link from "next/link";
-
-const steps = [
-  { id: 1, title: "Your Location", subtitle: "Where are you planting roots?", icon: MapPin },
-  { id: 2, title: "Eco Goals", subtitle: "What are your sustainability priorities?", icon: Target },
-  { id: 3, title: "All Set!", subtitle: "Ready to start your green journey?", icon: Sparkles },
-];
-
-const goals = [
-  "Reduce Carbon Footprint",
-  "Zero Waste Lifestyle",
-  "Sustainable Diet",
-  "Eco-Friendly Travel",
-  "Energy Efficiency",
-  "Plastic Free Living",
-];
+import { supabase, getDisplayName } from "@/lib/supabaseClient";
 
 export default function AuthPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
-  const { user: storeUser, updateProfile } = useEcoStore();
-  
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.push("/dashboard");
-      }
-    };
-    checkSession();
-  }, [router]);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    city: storeUser.city || "",
-    name: storeUser.name || "",
-    habits: storeUser.habits || [],
-  });
+  const [message, setMessage] = useState("");
 
-  const toggleGoal = (goal: string) => {
-    const newHabits = formData.habits.includes(goal)
-      ? formData.habits.filter(g => g !== goal)
-      : [...formData.habits, goal];
-    
-    setFormData({ ...formData, habits: newHabits });
-  };
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        const displayName = getDisplayName(session.user);
+        console.log("Authenticated user:", displayName);
+        setMessage(`Signed in as ${displayName}`);
+      }
+    });
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setLoading(true);
-    setError(null);
+    setMessage("");
 
-    if (isLogin) {
+    try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) {
-        setError(error.message);
-      } else {
-        router.push("/dashboard");
-      }
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setCurrentStep(1); // Move to onboarding after signup
-      }
-    }
-    setLoading(false);
-  };
 
-  const handleFinish = async () => {
-    updateProfile({
-      city: formData.city,
-      name: formData.name,
-      habits: formData.habits,
-    });
-    // Here you could also save this to Supabase profile table
-  };
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      const user = data.user;
+      if (user) {
+        const displayName = getDisplayName(user);
+        console.log("Authenticated user:", displayName);
+        setMessage(`Signed in as ${displayName}`);
+        router.push("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row overflow-hidden selection:bg-green/30 selection:text-green">
-      {/* Visual Side */}
-      <div className="relative w-full md:w-1/2 bg-green/5 overflow-hidden flex items-center justify-center p-12">
-        <div className="absolute inset-0 z-0">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              animate={{ 
-                rotate: [0, 360],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{ 
-                duration: 20 + i * 5, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="absolute opacity-10"
-              style={{
-                top: `${20 + i * 15}%`,
-                left: `${10 + i * 20}%`,
-              }}
-            >
-              <Wind className="w-64 h-64 text-green" />
-            </motion.div>
-          ))}
+    <main className="min-h-screen bg-[#0B0B0C] px-6 py-12 text-white sm:px-10 lg:px-16">
+      <section className="mx-auto grid min-h-[calc(100vh-6rem)] max-w-6xl items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(85,214,136,0.22),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(149,125,192,0.18),_transparent_32%)]" />
+          <div className="relative">
+            <p className="mb-3 text-sm font-medium uppercase tracking-[0.3em] text-[#55D688]">
+              GreenPulse Auth
+            </p>
+            <h1 className="max-w-xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+              Sign in to continue your sustainability dashboard.
+            </h1>
+            <p className="mt-4 max-w-lg text-sm leading-7 text-white/70 sm:text-base">
+              Authenticate with Supabase, keep the session alive in the browser,
+              and log the signed-in user&apos;s name as soon as login succeeds.
+            </p>
+
+            <form className="mt-8 space-y-4 max-w-lg" onSubmit={handleSubmit}>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-white/80">
+                  Email
+                </span>
+                <input
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-[#55D688]"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-white/80">
+                  Password
+                </span>
+                <input
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-[#55D688]"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                />
+              </label>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-[#55D688] px-5 py-3 text-sm font-semibold text-[#0B0B0C] transition-transform hover:scale-[0.99] active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {loading ? "Signing in..." : "Sign in"}
+              </button>
+
+              {message ? (
+                <p className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/80">
+                  {message}
+                </p>
+              ) : null}
+            </form>
+          </div>
         </div>
 
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1, type: "spring" }}
-          className="relative z-10 flex flex-col items-center"
-        >
-          <div className="relative mb-8">
-            <div className="absolute -inset-8 bg-green/20 blur-[80px] rounded-full animate-pulse" />
-            <div className="relative bento-card p-12 rounded-[3.5rem] border-4 border-green bg-white shadow-2xl">
-              <Leaf className="w-24 h-24 text-green drop-shadow-[0_0_15px_rgba(85,214,136,0.3)]" />
+        <div className="relative overflow-hidden rounded-[2rem] border border-[#55D688]/30 bg-[#1C1D1F] p-8 shadow-2xl shadow-black/50 sm:p-10">
+          <div className="absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[#55D688]/20 blur-3xl" />
+          <div className="absolute -bottom-20 right-0 h-60 w-60 rounded-full bg-[#957DC0]/20 blur-3xl" />
+          <div className="relative space-y-6">
+            <p className="text-sm uppercase tracking-[0.3em] text-white/45">
+              Session Preview
+            </p>
+            <div className="rounded-3xl border border-white/10 bg-black/30 p-5">
+              <div className="text-xs uppercase tracking-[0.25em] text-white/40">
+                Auth state
+              </div>
+              <div className="mt-3 text-lg font-medium text-white">
+                Session persists in the browser via Supabase Auth.
+              </div>
+              <div className="mt-2 text-sm leading-6 text-white/65">
+                After a successful login, the authenticated user name is printed
+                to the console and the session can be reused across the app.
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-black/20 p-4">
+                <div className="text-xs uppercase tracking-[0.25em] text-white/40">
+                  Login
+                </div>
+                <div className="mt-2 text-white/80">Email + password</div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-black/20 p-4">
+                <div className="text-xs uppercase tracking-[0.25em] text-white/40">
+                  Output
+                </div>
+                <div className="mt-2 text-white/80">Console logs user name</div>
+              </div>
             </div>
           </div>
-          <h2 className="text-5xl font-black text-header text-center mb-4 tracking-tighter">Biome</h2>
-          <p className="text-foreground/60 text-center max-w-sm font-medium italic">
-            Join the movement of guardians turning daily actions into planetary vitality.
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Form Side */}
-      <div className="w-full md:w-1/2 p-8 md:p-24 flex flex-col justify-center relative z-10 bg-background">
-        <div className="max-w-md mx-auto w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="mb-12">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="bg-green/10 p-3 rounded-2xl text-green">
-                    {(() => {
-                      if (currentStep === 0) return <Sparkles className="w-6 h-6" />;
-                      const Icon = steps[currentStep - 1].icon;
-                      return <Icon className="w-6 h-6" />;
-                    })()}
-                  </div>
-                  <div className="h-1.5 grow bg-black/5 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(currentStep / steps.length) * 100}%` }}
-                      className="h-full bg-green"
-                    />
-                  </div>
-                </div>
-                <h1 className="text-4xl font-extrabold text-header mb-2">
-                  {currentStep === 0 ? (isLogin ? "Welcome Back" : "Join the Biome") : steps[currentStep - 1].title}
-                </h1>
-                <p className="text-foreground/60 font-medium">
-                  {currentStep === 0 ? (isLogin ? "Sign in to continue your journey" : "Create an account to start your impact") : steps[currentStep - 1].subtitle}
-                </p>
-              </div>
-
-              {currentStep === 0 && (
-                <form onSubmit={handleAuth} className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">Email Address</label>
-                    <input 
-                      type="email" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="alex@example.com"
-                      required
-                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">Password</label>
-                    <input 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
-                    />
-                  </div>
-                  {error && <p className="text-red-500 text-sm font-medium ml-1">{error}</p>}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full btn-primary py-4 rounded-2xl font-black shadow-lg shadow-green/20 flex items-center justify-center gap-2"
-                  >
-                    {loading ? "Processing..." : isLogin ? "Sign In" : "Create Account"}
-                    {!loading && <ArrowRight className="w-5 h-5" />}
-                  </button>
-                  <div className="text-center">
-                    <button 
-                      type="button"
-                      onClick={() => setIsLogin(!isLogin)}
-                      className="text-sm font-bold text-green hover:underline"
-                    >
-                      {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {currentStep === 1 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">City / Region</label>
-                    <input 
-                      type="text" 
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="e.g. San Francisco, CA"
-                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">Display Name</label>
-                    <input 
-                      type="text" 
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Your eco-alias"
-                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="grid grid-cols-2 gap-3">
-                  {goals.map(goal => (
-                    <button
-                      key={goal}
-                      onClick={() => toggleGoal(goal)}
-                      className={cn(
-                        "p-4 rounded-2xl text-[10px] font-black transition-all text-left border-2 uppercase tracking-wider",
-                        formData.habits.includes(goal)
-                          ? "bg-green border-green text-white shadow-lg shadow-green/20"
-                          : "bg-white border-black/5 text-foreground/60 hover:border-black/10"
-                      )}
-                    >
-                      {goal}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="text-center space-y-8 py-8">
-                  <div className="relative inline-block">
-                    <div className="absolute -inset-6 bg-green/10 blur-3xl rounded-full" />
-                    <CheckCircle2 className="w-24 h-24 text-green relative z-10 mx-auto" />
-                  </div>
-                  <p className="text-foreground/60 leading-relaxed font-medium italic">
-                    &quot;You&apos;re ready to join the biome. Let&apos;s start making an impact, one choice at a time.&quot;
-                  </p>
-                </div>
-              )}
-
-              {currentStep > 0 && (
-                <div className="mt-12 flex gap-4">
-                  {currentStep > 1 && (
-                    <button
-                      onClick={() => setCurrentStep(prev => prev - 1)}
-                      className="p-4 rounded-2xl border border-black/10 text-header hover:bg-black/5 transition-all flex items-center justify-center"
-                    >
-                      <ArrowLeft className="w-6 h-6" />
-                    </button>
-                  )}
-                  
-                  {currentStep < 3 ? (
-                    <button
-                      onClick={() => setCurrentStep(prev => prev + 1)}
-                      className="grow btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20"
-                    >
-                      Continue <ArrowRight className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <Link href="/dashboard" className="grow" onClick={handleFinish}>
-                      <button className="w-full btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20">
-                        Enter the Biome <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </Link>
-                  )}
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
