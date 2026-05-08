@@ -13,6 +13,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=EcoActionRead)
+@router.post("/log", response_model=EcoActionRead)
 async def log_action(
     action_data: EcoActionCreate,
     db: AsyncSession = Depends(get_db_session),
@@ -57,6 +58,7 @@ async def log_action(
 
 
 @router.get("/", response_model=list[EcoActionRead])
+@router.get("/recent", response_model=list[EcoActionRead])
 async def get_actions(
     db: AsyncSession = Depends(get_db_session),
     current_user: dict = Depends(get_current_user),
