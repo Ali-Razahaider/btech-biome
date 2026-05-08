@@ -2,12 +2,44 @@
 
 import React from "react";
 import Hero from "@/components/Hero";
-import ProblemSection from "@/components/home/ProblemSection";
-import SolutionLayers from "@/components/home/SolutionLayers";
-import BentoFeatures from "@/components/home/BentoFeatures";
-import Stats from "@/components/home/Stats";
-import CTA from "@/components/home/CTA";
 import Footer from "@/components/Footer";
+import { motion } from "framer-motion";
+import { Calculator, Map, Users, CheckCircle2, ArrowRight, Leaf } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import TextType from "@/components/TextType";
+
+const stats = [
+  { label: "Active Users", value: "50k+" },
+  { label: "Carbon Offset", value: "200k Tons" },
+  { label: "Trees Planted", value: "1.2M" },
+  { label: "Global Partners", value: "450+" }
+];
+
+const features = [
+  {
+    title: "AI Carbon Calculator",
+    description: "Measure your environmental footprint with precision using our advanced algorithms. Get real-time feedback on your daily choices and learn how to optimize your lifestyle for a cleaner planet.",
+    icon: Calculator,
+    color: "bg-green/10 text-green",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426",
+  },
+  {
+    title: "Regional Intelligence Map",
+    description: "Explore live air quality data and biomass potential zones across the region. Our interactive mapping system provides local insights to help you understand environmental impacts in your area.",
+    icon: Map,
+    color: "bg-blue-50 text-blue-600",
+    image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=2066",
+  },
+  {
+    title: "Community Challenges",
+    description: "Join collective missions to reduce plastic, save energy, and plant trees. Connect with thousands of like-minded individuals and see the cumulative impact of our community actions.",
+    icon: Users,
+    color: "bg-orange/10 text-orange",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2264",
+  }
+];
 
 export default function LandingPage() {
   return (

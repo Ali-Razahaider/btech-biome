@@ -5,6 +5,7 @@ import { useEcoStore } from "@/store/useStore";
 import { useEffect, useState } from "react";
 import { Globe, Wind, Info, MapPin, Zap, Brain, TrendingUp, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
   ssr: false,
