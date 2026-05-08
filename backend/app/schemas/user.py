@@ -17,7 +17,7 @@ class UserRead(UserBase):
     eco_points: int
     streak: int
     last_active_date: date | None = None
-    created_at: datetime
+    created_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
