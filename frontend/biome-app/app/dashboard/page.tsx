@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
@@ -20,6 +20,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useEcoStore } from "@/store/useStore";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import LogActionModal from "@/components/dashboard/LogActionModal";
 
 const TIER_CONFIG = {
   Bronze: { color: "#CD7F32", min: 0, max: 1500, next: "Silver" },
@@ -31,6 +32,7 @@ const TIER_CONFIG = {
 export default function Dashboard() {
   const router = useRouter();
   const { user, actions } = useEcoStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -52,6 +54,8 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+      <LogActionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
@@ -69,6 +73,7 @@ export default function Dashboard() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setIsModalOpen(true)}
             className="btn-primary flex items-center gap-2 shadow-lg shadow-green/20"
           >
             <Plus size={20} /> Log Action

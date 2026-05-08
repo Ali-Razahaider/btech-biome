@@ -21,11 +21,11 @@ export default function Hero() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black text-header mb-6 leading-tight tracking-tight">
-            Gamifying <span className="text-green">Sustainability</span> for a <br className="md:hidden" />
+            Gamifying <span className="text-green">Sustainability</span> for a <br /><span>Better</span>
             <TextType 
               as="span"
-              text={["Greener Tomorrow.", "Better Future.", "Healthy Planet."]}
-              className="bg-gradient-to-r from-green to-emerald-600 bg-clip-text text-transparent inline-block"
+              text={[" Tomorrow", " Future", " Planet"]}
+              className="bg-linear-to-r from-green to-emerald-600 bg-clip-text text-transparent inline-block"
               cursorClassName="text-green"
               typingSpeed={80}
             />
@@ -43,7 +43,7 @@ export default function Hero() {
               <span className="relative z-10 flex items-center gap-2">
                 Get Started for Free <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
             <button className="px-10 py-5 rounded-2xl bg-slate-50 border border-slate-200 text-header text-lg font-bold hover:bg-slate-100 transition-all shadow-sm">
               Watch Demo

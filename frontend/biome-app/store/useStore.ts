@@ -29,11 +29,21 @@ interface Challenge {
   joined: boolean;
 }
 
+interface BiomassZone {
+  id: string;
+  name: string;
+  coords: [number, number];
+  potential: "High" | "Medium" | "Low";
+  cropType: string;
+}
+
 interface EcoStore {
   user: UserProfile;
   actions: EcoAction[];
   challenges: Challenge[];
   aqi: { value: number; status: string; city: string; coords: [number, number] } | null;
+  biomassZones: BiomassZone[];
+  selectedZone: BiomassZone | null;
   
   // Actions
   addPoints: (pts: number) => void;
@@ -41,6 +51,7 @@ interface EcoStore {
   toggleChallenge: (id: number) => void;
   updateProfile: (profile: Partial<UserProfile>) => void;
   fetchAQI: (city: string) => Promise<void>;
+  setSelectedZone: (zone: BiomassZone | null) => void;
   checkStreak: () => void;
   calculateTier: (points: number) => "Bronze" | "Silver" | "Gold" | "Platinum";
 }
@@ -50,7 +61,7 @@ export const useEcoStore = create<EcoStore>()(
     (set, get) => ({
       user: {
         name: "Alex",
-        city: "San Francisco",
+        city: "Lahore",
         habits: [],
         points: 2450,
         streak: 4,
@@ -67,8 +78,17 @@ export const useEcoStore = create<EcoStore>()(
         { id: 2, title: "10k Step Challenge", participants: 850, progress: 42, tag: "TRANSPORT", joined: false },
         { id: 3, title: "Meatless Mondays", participants: 2100, progress: 88, tag: "DIET", joined: false },
       ],
+      biomassZones: [
+        { id: "lhr", name: "Lahore District", coords: [31.5204, 74.3587], potential: "High", cropType: "Wheat" },
+        { id: "skp", name: "Sheikhupura", coords: [31.7131, 73.9783], potential: "High", cropType: "Rice" },
+        { id: "gjw", name: "Gujranwala", coords: [32.1877, 74.1945], potential: "Medium", cropType: "Wheat" },
+        { id: "fsd", name: "Faisalabad", coords: [31.4504, 73.1350], potential: "High", cropType: "Sugar Cane" },
+      ],
+      selectedZone: null,
       aqi: null,
 
+      setSelectedZone: (zone) => set({ selectedZone: zone }),
+      
       calculateTier: (points) => {
         if (points >= 5000) return "Platinum";
         if (points >= 3000) return "Gold";

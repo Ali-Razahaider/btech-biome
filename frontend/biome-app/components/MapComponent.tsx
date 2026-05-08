@@ -3,6 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useEcoStore } from "@/store/useStore";
 
 // Fix for default marker icons in Leaflet + Next.js
 const icon = L.icon({
@@ -18,17 +19,27 @@ interface MapProps {
 }
 
 export default function MapComponent({ center, aqi }: MapProps) {
+  const { biomassZones, setSelectedZone } = useEcoStore();
+
   const getAQIColor = (val: number) => {
     if (val < 50) return "#55D688"; // Green
     if (val < 100) return "#F9A826"; // Orange
-    return "#334155"; // Slate
+    return "#EF4444"; // Red
+  };
+
+  const getPotentialColor = (potential: string) => {
+    switch (potential) {
+      case "High": return "#10B981";
+      case "Medium": return "#3B82F6";
+      default: return "#94A3B8";
+    }
   };
 
   return (
     <div className="w-full h-full z-0 relative">
       <MapContainer 
         center={center} 
-        zoom={13} 
+        zoom={10} 
         scrollWheelZoom={false} 
         style={{ height: "100%", width: "100%", background: "#F8FAF9" }}
       >
@@ -36,29 +47,62 @@ export default function MapComponent({ center, aqi }: MapProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
+        
+        {/* User Location Marker */}
         <Marker position={center} icon={icon}>
           <Popup className="custom-popup">
             <div className="p-2 min-w-[150px]">
-              <h3 className="font-extrabold text-header mb-2">Local Quality</h3>
+              <h3 className="font-extrabold text-header mb-2">Live AQI</h3>
               <div className="flex items-center justify-between bg-black/5 p-3 rounded-xl">
                 <span className="text-[10px] font-bold text-foreground/40 uppercase">Air Index</span>
                 <span className="font-black text-lg" style={{ color: getAQIColor(aqi) }}>{aqi}</span>
               </div>
-              <p className="text-[9px] font-bold text-foreground/30 mt-3 uppercase tracking-widest text-center">Live Sensor Data</p>
             </div>
           </Popup>
         </Marker>
-        <Circle 
-          center={center} 
-          radius={2000} 
-          pathOptions={{ 
-            fillColor: getAQIColor(aqi), 
-            fillOpacity: 0.1, 
-            color: getAQIColor(aqi),
-            weight: 1,
-            dashArray: "5, 10"
-          }} 
-        />
+
+        {/* Biomass Zones */}
+        {biomassZones.map((zone) => (
+          <Circle 
+            key={zone.id}
+            center={zone.coords} 
+            radius={5000} 
+            eventHandlers={{
+              click: () => setSelectedZone(zone),
+            }}
+            pathOptions={{ 
+              fillColor: getPotentialColor(zone.potential), 
+              fillOpacity: 0.4, 
+              color: getPotentialColor(zone.potential),
+              weight: 2,
+            }} 
+          >
+            <Popup className="custom-popup">
+              <div className="p-2 min-w-[180px]">
+                <h3 className="font-extrabold text-header mb-1">{zone.name}</h3>
+                <p className="text-[10px] font-bold text-foreground/40 uppercase mb-3">Biomass Zone</p>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Potential</span>
+                    <span className="font-bold text-sm" style={{ color: getPotentialColor(zone.potential) }}>{zone.potential}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Crop</span>
+                    <span className="font-bold text-sm text-header">{zone.cropType}</span>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setSelectedZone(zone)}
+                  className="w-full mt-4 bg-header text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-widest hover:bg-black/80 transition-colors"
+                >
+                  Analyze Site
+                </button>
+              </div>
+            </Popup>
+          </Circle>
+        ))}
       </MapContainer>
 
       <style jsx global>{`
@@ -75,15 +119,6 @@ export default function MapComponent({ center, aqi }: MapProps) {
         }
         .custom-popup .leaflet-popup-tip {
           background: #FFFFFF !important;
-        }
-        .leaflet-bar {
-          border: none !important;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-        }
-        .leaflet-bar a {
-          background-color: #FFFFFF !important;
-          color: #334155 !important;
-          border-bottom: 1px solid rgba(0,0,0,0.05) !important;
         }
       `}</style>
     </div>

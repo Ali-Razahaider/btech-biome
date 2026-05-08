@@ -1,47 +1,44 @@
 "use client";
 
 import React from "react";
+import Hero from "@/components/Hero";
+import Footer from "@/components/Footer";
+import { motion } from "framer-motion";
+import { Calculator, Map, Users, CheckCircle2, ArrowRight, Leaf } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  ArrowRight, 
-  Leaf, 
-  Globe, 
-  Zap, 
-  Shield, 
-  TrendingDown, 
-  Users, 
-  BarChart3,
-  CheckCircle2
-} from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-import Hero from "@/components/Hero";
 import TextType from "@/components/TextType";
-
-const features = [
-  {
-    title: "AI Carbon Tracker",
-    description: "Our advanced AI automatically calculates your footprint based on daily habits and provides personalized reduction strategies.",
-    icon: TrendingDown,
-    image: "/carbon-feature.png",
-    color: "bg-green/10 text-green"
-  },
-  {
-    title: "Eco Community",
-    description: "Join thousands of eco-conscious individuals. Share tips, join local challenges, and compete in the global leaderboard.",
-    icon: Users,
-    image: "/community-feature.png",
-    color: "bg-orange/10 text-orange"
-  }
-];
 
 const stats = [
   { label: "Active Users", value: "50k+" },
   { label: "Carbon Offset", value: "200k Tons" },
   { label: "Trees Planted", value: "1.2M" },
   { label: "Global Partners", value: "450+" }
+];
+
+const features = [
+  {
+    title: "AI Carbon Calculator",
+    description: "Measure your environmental footprint with precision using our advanced algorithms. Get real-time feedback on your daily choices and learn how to optimize your lifestyle for a cleaner planet.",
+    icon: Calculator,
+    color: "bg-green/10 text-green",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426",
+  },
+  {
+    title: "Regional Intelligence Map",
+    description: "Explore live air quality data and biomass potential zones across the region. Our interactive mapping system provides local insights to help you understand environmental impacts in your area.",
+    icon: Map,
+    color: "bg-blue-50 text-blue-600",
+    image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=2066",
+  },
+  {
+    title: "Community Challenges",
+    description: "Join collective missions to reduce plastic, save energy, and plant trees. Connect with thousands of like-minded individuals and see the cumulative impact of our community actions.",
+    icon: Users,
+    color: "bg-orange/10 text-orange",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2264",
+  }
 ];
 
 export default function LandingPage() {
@@ -147,11 +144,11 @@ export default function LandingPage() {
               <Leaf size={400} />
             </div>
             <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-4xl md:text-6xl font-black mb-8">
+              <h2 className="text-4xl md:text-6xl text-white! font-black mb-8">
                 Ready to make <TextType 
                   as="span"
                   text={["an impact?", "a change?", "history?"]}
-                  className="bg-gradient-to-r from-green to-emerald-400 bg-clip-text text-transparent inline-block"
+                  className="bg-linear-to-r from-green to-emerald-400 bg-clip-text text-transparent inline-block"
                   cursorClassName="text-green"
                   typingSpeed={100}
                 />

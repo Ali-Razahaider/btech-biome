@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Biome | Vitality Mode",
-  description: "Gamifying eco-conscious living for a carbon-negative future.",
+  title: "Biome | Sustainability Platform for Pakistan",
+  description: "Measure your carbon footprint, log eco-actions, and explore biomass potential in Pakistan. Join the movement for a cleaner, greener future.",
+  keywords: ["sustainability", "carbon footprint", "Pakistan", "biomass", "renewable energy", "eco-friendly habits"],
 };
 
 export default function RootLayout({
