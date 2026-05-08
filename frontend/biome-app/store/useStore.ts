@@ -65,7 +65,7 @@ interface EcoStore {
   insights: string[];
   weeklyPlan: any[];
   _synced: boolean;
-  
+
   // Actions
   addPoints: (pts: number) => void;
   addAction: (action: { category: string; description: string; points: number }) => Promise<void>;
@@ -111,7 +111,7 @@ export const useEcoStore = create<EcoStore>()(
       _synced: false,
 
       setSelectedZone: (zone) => set({ selectedZone: zone }),
-      
+
       calculateTier: (points) => {
         if (points >= 5000) return "Platinum";
         if (points >= 3000) return "Gold";
@@ -121,12 +121,12 @@ export const useEcoStore = create<EcoStore>()(
 
       addPoints: (pts) => set((state) => {
         const newPoints = state.user.points + pts;
-        return { 
-          user: { 
-            ...state.user, 
+        return {
+          user: {
+            ...state.user,
             points: newPoints,
             tier: get().calculateTier(newPoints)
-          } 
+          }
         };
       }),
 
@@ -221,12 +221,14 @@ export const useEcoStore = create<EcoStore>()(
       fetchAQI: async (city) => {
         try {
           const data = await envApi.getAQI(city);
-          set({ aqi: { 
-            value: data.aqi, 
-            status: data.aqi < 50 ? "Good" : data.aqi < 100 ? "Moderate" : "Unhealthy",
-            city: data.city.name,
-            coords: data.city.geo
-          }});
+          set({
+            aqi: {
+              value: data.aqi,
+              status: data.aqi < 50 ? "Good" : data.aqi < 100 ? "Moderate" : "Unhealthy",
+              city: data.city.name,
+              coords: data.city.geo
+            }
+          });
         } catch (error) {
           console.error("Failed to fetch AQI", error);
         }
@@ -236,7 +238,7 @@ export const useEcoStore = create<EcoStore>()(
         try {
           const data = await leaderboardApi.get(filter);
           set({ leaderboard: data });
-          
+
           // Update global rank if user is in leaderboard
           const myRank = data.find((entry: any) => entry.email === get().user.email)?.rank;
           if (myRank) {
