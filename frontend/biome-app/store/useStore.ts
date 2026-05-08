@@ -56,10 +56,12 @@ interface EcoStore {
   toggleChallenge: (id: number) => void;
   updateProfile: (profile: Partial<UserProfile>) => void;
   fetchAQI: (city: string) => Promise<void>;
-  setSelectedZone: (zone: BiomassZone | null) => void;
   checkStreak: () => void;
   calculateTier: (points: number) => "Bronze" | "Silver" | "Gold" | "Platinum";
+  syncWithBackend: () => Promise<void>;
 }
+
+import { authApi } from "@/lib/api";
 
 export const useEcoStore = create<EcoStore>()(
   persist(
@@ -175,6 +177,25 @@ export const useEcoStore = create<EcoStore>()(
           set((state) => ({ 
             user: { ...state.user, streak: 1, lastLogin: today.toISOString() } 
           }));
+        }
+      },
+
+      syncWithBackend: async () => {
+        try {
+          const userData = await authApi.getMe();
+          set((state) => ({
+            user: {
+              ...state.user,
+              email: userData.email,
+              city: userData.city || state.user.city,
+              habits: userData.habits || state.user.habits,
+              points: userData.eco_points,
+              streak: userData.streak,
+              tier: get().calculateTier(userData.eco_points),
+            }
+          }));
+        } catch (error) {
+          console.error("Store sync failed:", error);
         }
       }
     }),

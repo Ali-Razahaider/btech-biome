@@ -31,18 +31,20 @@ const TIER_CONFIG = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, actions } = useEcoStore();
+  const { user, actions, syncWithBackend } = useEcoStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        router.push("/auth");
+        router.push("/auth/login");
+      } else {
+        syncWithBackend();
       }
     };
     checkUser();
-  }, [router]);
+  }, [router, syncWithBackend]);
   
   const currentTier = TIER_CONFIG[user.tier] || TIER_CONFIG.Bronze;
   const tierProgress = ((user.points - currentTier.min) / (currentTier.max - currentTier.min)) * 100;

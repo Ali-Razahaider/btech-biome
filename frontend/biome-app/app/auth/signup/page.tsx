@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { authApi } from "@/lib/api";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -63,7 +64,18 @@ export default function SignUpPage() {
         console.error("Profile creation error:", profileError);
         toast.error("Profile created but some data couldn't be saved.");
       } else {
-        toast.success("Account created! Please check your email for verification.");
+        // 3. Sync with FastAPI Backend
+        try {
+          await authApi.sync({
+            email: formData.email,
+            city: formData.city,
+            habits: [], // Default habits or add to form
+          });
+          toast.success("Account created and synced with Biome!");
+        } catch (syncError) {
+          console.error("Backend sync error:", syncError);
+          toast.success("Account created, but backend sync failed.");
+        }
       }
       
       router.push("/dashboard");
