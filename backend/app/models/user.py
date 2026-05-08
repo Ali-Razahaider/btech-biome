@@ -21,8 +21,8 @@ class User(Base):
     last_active_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
-    actions: Mapped[list["EcoAction"]] = relationship(back_populates="user")
-    footprints: Mapped[list["FootprintLog"]] = relationship(back_populates="user")
+    actions: Mapped[list["EcoAction"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    footprints: Mapped[list["FootprintLog"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     challenge_participations: Mapped[list["ChallengeParticipant"]] = relationship(
-        back_populates="user"
+        back_populates="user", cascade="all, delete-orphan"
     )
