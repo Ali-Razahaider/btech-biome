@@ -53,16 +53,12 @@ async def verify_jwt(token: str) -> dict[str, Any]:
     try:
         header = jwt.get_unverified_header(token)
     except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
 
     jwks = await _fetch_jwks()
     key = next((k for k in jwks if k.get("kid") == header.get("kid")), None)
     if not key:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown token key"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown token key")
 
     try:
         return jwt.decode(
@@ -73,9 +69,7 @@ async def verify_jwt(token: str) -> dict[str, Any]:
             issuer=config["supabase_jwt_issuer"],
         )
     except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token verification failed"
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token verification failed") from exc
 
 
 async def get_current_user(
