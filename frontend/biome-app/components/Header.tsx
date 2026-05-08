@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
+import {
   Leaf,
   Menu,
   X,
@@ -12,7 +12,7 @@ import {
   Calculator,
   Users,
   Map as MapIcon,
-  User
+  User,
 } from "lucide-react";
 import { motion, AnimatePresence, cubicBezier } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,9 @@ export default function Header() {
     const checkAuth = async () => {
       try {
         const { supabase } = await import("@/lib/supabase");
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -53,10 +55,12 @@ export default function Header() {
   }, []);
 
   const isLandingPage = pathname === "/";
-  const authenticatedNavItems = user ? navItems : [
-    { name: "Features", href: "#features" },
-    { name: "Impact", href: "#impact" },
-  ];
+  const authenticatedNavItems = user
+    ? navItems
+    : [
+        { name: "Features", href: "#features" },
+        { name: "Impact", href: "#impact" },
+      ];
 
   // Super smooth easing curve for the Vercel/Apple feel
   const easeSmooth = cubicBezier(0.16, 1, 0.3, 1);
@@ -67,7 +71,7 @@ export default function Header() {
       <motion.div
         id="desktop-wrapper"
         initial={false}
-        animate={{ 
+        animate={{
           paddingTop: isScrolled ? "1rem" : "1.5rem",
         }}
         transition={{ duration: 0.5, ease: easeSmooth }}
@@ -76,9 +80,9 @@ export default function Header() {
         <motion.div
           className={cn(
             "relative flex items-center overflow-hidden transition-colors duration-500",
-            isScrolled 
-              ? "bg-white/80 backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/5" 
-              : "bg-transparent border-transparent px-12"
+            isScrolled
+              ? "bg-white/80 backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/5"
+              : "bg-transparent border-transparent px-12",
           )}
           initial={false}
           animate={{
@@ -88,7 +92,7 @@ export default function Header() {
           transition={{ duration: 0.6, ease: easeSmooth }}
         >
           {/* Nav Links - Glides to Center */}
-          <motion.nav 
+          <motion.nav
             className="absolute flex items-center gap-8 whitespace-nowrap"
             initial={false}
             animate={{
@@ -104,9 +108,9 @@ export default function Header() {
                 href={item.href}
                 className={cn(
                   "text-sm font-medium transition-colors duration-200",
-                  isScrolled 
-                    ? "text-foreground/60 hover:text-foreground" 
-                    : "text-foreground/80 hover:text-green"
+                  isScrolled
+                    ? "text-foreground/60 hover:text-foreground"
+                    : "text-foreground/80 hover:text-green",
                 )}
               >
                 {item.name}
@@ -126,16 +130,22 @@ export default function Header() {
             transition={{ duration: 0.6, ease: easeSmooth }}
           >
             <Link href="/" className="flex items-center gap-2 group">
-              <div className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
-                isScrolled ? "bg-green text-white shadow-lg shadow-green/20" : "bg-white text-green shadow-xl shadow-white/10"
-              )}>
+              <div
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
+                  isScrolled
+                    ? "bg-green text-white shadow-lg shadow-green/20"
+                    : "bg-white text-green shadow-xl shadow-white/10",
+                )}
+              >
                 <Leaf size={20} />
               </div>
-              <span className={cn(
-                "text-xl font-bold tracking-tight transition-colors duration-300",
-                isScrolled ? "text-header" : "text-header"
-              )}>
+              <span
+                className={cn(
+                  "text-xl font-bold tracking-tight transition-colors duration-300",
+                  isScrolled ? "text-header" : "text-header",
+                )}
+              >
                 Biome
               </span>
             </Link>
@@ -158,10 +168,10 @@ export default function Header() {
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Link 
-                    href="/auth" 
+                  <Link
+                    href="/auth"
                     className={cn(
-                      "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground"
+                      "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground",
                     )}
                   >
                     Login
@@ -170,11 +180,11 @@ export default function Header() {
               )}
             </AnimatePresence>
 
-            <Link 
+            <Link
               href={user ? "/dashboard" : "/auth"}
               className={cn(
                 "relative h-11 min-w-[115px] flex items-center justify-center rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden bg-green text-white shadow-lg shadow-green/20",
-                isScrolled && "h-10 min-w-[135px]"
+                isScrolled && "h-10 min-w-[135px]",
               )}
             >
               <motion.span
@@ -208,7 +218,11 @@ export default function Header() {
         id="nav-mobile"
         initial={false}
         animate={{
-          backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.85)" : (isLandingPage ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 1)"),
+          backgroundColor: isScrolled
+            ? "rgba(255, 255, 255, 0.85)"
+            : isLandingPage
+              ? "rgba(255, 255, 255, 0)"
+              : "rgba(255, 255, 255, 1)",
           paddingTop: isScrolled ? "0.75rem" : "1rem",
           paddingBottom: isScrolled ? "0.75rem" : "1rem",
           boxShadow: isScrolled ? "0 2px 10px rgba(0, 0, 0, 0.05)" : "none",
@@ -216,25 +230,33 @@ export default function Header() {
         className="fixed top-0 left-0 w-full lg:hidden flex items-center justify-between px-6 z-[1000] backdrop-blur-xl"
       >
         <Link href="/" className="flex items-center gap-2">
-          <div className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-            isScrolled ? "bg-green text-white shadow-lg shadow-green/20" : (isLandingPage ? "bg-white text-green" : "bg-green text-white")
-          )}>
+          <div
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
+              isScrolled
+                ? "bg-green text-white shadow-lg shadow-green/20"
+                : isLandingPage
+                  ? "bg-white text-green"
+                  : "bg-green text-white",
+            )}
+          >
             <Leaf size={18} />
           </div>
-          <span className={cn(
-            "text-lg font-bold tracking-tight transition-colors duration-300",
-            isScrolled ? "text-header" : "text-header"
-          )}>
+          <span
+            className={cn(
+              "text-lg font-bold tracking-tight transition-colors duration-300",
+              isScrolled ? "text-header" : "text-header",
+            )}
+          >
             Biome
           </span>
         </Link>
 
-        <button 
+        <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className={cn(
             "p-2 rounded-xl transition-colors duration-300",
-            isScrolled ? "bg-black/5 text-header" : "bg-black/5 text-header"
+            isScrolled ? "bg-black/5 text-header" : "bg-black/5 text-header",
           )}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -257,11 +279,13 @@ export default function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all"
                   >
-                    <span className="font-semibold text-foreground/80">{item.name}</span>
+                    <span className="font-semibold text-foreground/80">
+                      {item.name}
+                    </span>
                     <ChevronRight size={18} className="text-foreground/30" />
                   </Link>
                 ))}
-                <Link 
+                <Link
                   href={user ? "/dashboard" : "/auth"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="mt-4 w-full py-4 rounded-2xl bg-green text-white text-center font-bold shadow-lg shadow-green/20"
