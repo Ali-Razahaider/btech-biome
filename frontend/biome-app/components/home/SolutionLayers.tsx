@@ -2,70 +2,83 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { User, Users, Globe } from "lucide-react";
+import { User, Users, Globe, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const SolutionLayers = () => {
   const layers = [
     {
       title: "Personal Layer",
+      subtitle: "Track & Improve",
+      description: "Calculate your carbon footprint and get AI-powered daily action plans to reduce your impact. Gamified streaks keep you motivated every single day.",
       icon: User,
-      description: "Track your footprint, log daily actions, and build sustainable habits through gamification and AI insights.",
-      features: ["Carbon Calculator", "Daily Action Log", "Streak Tracking"],
-      color: "from-green-400 to-emerald-500",
+      color: "green",
+      points: ["AI Carbon Calculator", "Daily Action Log", "Streak Tracking"]
     },
     {
       title: "Community Layer",
+      subtitle: "Compete & Connect",
+      description: "Join active challenges, climb the regional leaderboard, and see how collective actions from your city are shifting the needle on sustainability.",
       icon: Users,
-      description: "Join local challenges, compete on leaderboards, and see the collective impact of your city.",
-      features: ["Eco-Challenges", "City Leaderboards", "Social Proof"],
-      color: "from-orange-400 to-amber-500",
+      color: "orange",
+      points: ["Active Challenges", "Global Leaderboards", "Social Accountability"]
     },
     {
       title: "Regional Intelligence",
+      subtitle: "Analyze & Act",
+      description: "Our GIS mapping system identifies biomass potential and air quality zones. Analyze any location for biogas feasibility with one click.",
       icon: Globe,
-      description: "Explore biomass potential and air quality maps to drive systemic change in energy production.",
-      features: ["Biomass Mapping", "Live AQI Data", "AI Site Analysis"],
-      color: "from-blue-400 to-indigo-500",
-    },
+      color: "blue",
+      points: ["Biomass Potential Map", "AQI Heatmaps", "AI Feasibility Reports"]
+    }
   ];
 
   return (
-    <section className="py-24 bg-slate-50/50">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-header mb-4">A Three-Layered Solution</h2>
+    <section className="py-24 bg-slate-50">
+      <div className="container mx-auto px-4 md:px-12">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-black text-header mb-6">Our 3-Layer Solution</h2>
           <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
-            Biome bridges the gap between individual action and regional intelligence.
+            Biome combines personal accountability with regional intelligence to solve Pakistan's environmental challenges.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {layers.map((layer, i) => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {layers.map((layer, idx) => (
             <motion.div
-              key={i}
+              key={idx}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.2 }}
-              className="relative p-8 rounded-[32px] bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group"
+              transition={{ delay: idx * 0.1 }}
+              className="relative group p-8 rounded-[2.5rem] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all"
             >
-              <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${layer.color} flex items-center justify-center text-white mb-8 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                <layer.icon size={32} />
+              <div className={`w-14 h-14 rounded-2xl bg-${layer.color}/10 text-${layer.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
+                <layer.icon size={28} />
               </div>
-              
-              <h3 className="text-2xl font-bold text-header mb-4">{layer.title}</h3>
+              <div className="mb-8">
+                <span className={`text-sm font-bold uppercase tracking-widest text-${layer.color} mb-2 block`}>
+                  {layer.subtitle}
+                </span>
+                <h3 className="text-2xl font-bold text-header">{layer.title}</h3>
+              </div>
               <p className="text-foreground/60 mb-8 leading-relaxed">
                 {layer.description}
               </p>
-              
-              <ul className="space-y-3">
-                {layer.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-3 text-sm font-semibold text-header/80">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green"></div>
-                    {f}
+              <ul className="space-y-3 mb-10">
+                {layer.points.map((point, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm font-medium text-header">
+                    <div className={`w-1.5 h-1.5 rounded-full bg-${layer.color}`} />
+                    {point}
                   </li>
                 ))}
               </ul>
+              <Link
+                href="/auth/signup"
+                className="inline-flex items-center gap-2 font-bold text-header hover:gap-3 transition-all"
+              >
+                Explore Layer <ArrowRight size={18} />
+              </Link>
             </motion.div>
           ))}
         </div>

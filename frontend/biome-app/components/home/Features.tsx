@@ -4,23 +4,30 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, TrendingDown, Users, CheckCircle2 } from "lucide-react";
+import { Calculator, Map, Users, CheckCircle2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const features = [
   {
-    title: "AI Carbon Tracker",
-    description: "Our advanced AI automatically calculates your footprint based on daily habits and provides personalized reduction strategies.",
-    icon: TrendingDown,
-    image: "/carbon-feature.png",
-    color: "bg-green/10 text-green"
+    title: "AI Carbon Calculator",
+    description: "Measure your environmental footprint with precision using our advanced algorithms. Get real-time feedback on your daily choices and learn how to optimize your lifestyle for a cleaner planet.",
+    icon: Calculator,
+    color: "bg-green/10 text-green",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426",
   },
   {
-    title: "Eco Community",
-    description: "Join thousands of eco-conscious individuals. Share tips, join local challenges, and compete in the global leaderboard.",
+    title: "Regional Intelligence Map",
+    description: "Explore live air quality data and biomass potential zones across the region. Our interactive mapping system provides local insights to help you understand environmental impacts in your area.",
+    icon: Map,
+    color: "bg-blue-50 text-blue-600",
+    image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=2066",
+  },
+  {
+    title: "Community Challenges",
+    description: "Join collective missions to reduce plastic, save energy, and plant trees. Connect with thousands of like-minded individuals and see the cumulative impact of our community actions.",
     icon: Users,
-    image: "/community-feature.png",
-    color: "bg-orange/10 text-orange"
+    color: "bg-orange/10 text-orange",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2264",
   }
 ];
 

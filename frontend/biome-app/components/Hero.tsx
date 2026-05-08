@@ -17,14 +17,14 @@ export default function Hero() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 border border-green/20 text-green text-sm font-medium mb-8">
             <span className="flex h-2 w-2 rounded-full bg-green animate-pulse"></span>
-            The Future of Eco-Living is Here
+            Building Pakistan's First Biomass Intelligence Platform
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black text-header mb-6 leading-tight tracking-tight">
-            Gamifying <span className="text-green">Sustainability</span> for a <br /><span>Better</span>
+            Healing our <span className="text-green">Biome</span> through <br />
             <TextType 
               as="span"
-              text={[" Tomorrow", " Future", " Planet"]}
+              text={["Action", "Intelligence", "Community"]}
               className="bg-linear-to-r from-green to-emerald-600 bg-clip-text text-transparent inline-block"
               cursorClassName="text-green"
               typingSpeed={80}
@@ -32,12 +32,12 @@ export default function Hero() {
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/70 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Biome empowers you to track, reduce, and offset your carbon footprint through interactive challenges and a global community.
+            The all-in-one platform for personal footprint tracking, community eco-challenges, and regional biomass intelligence tailored for Pakistan.
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Link 
-              href="/auth" 
+              href="/auth/signup" 
               className="group relative px-10 py-5 rounded-2xl bg-green text-white text-lg font-bold shadow-2xl shadow-green/20 hover:scale-105 transition-transform duration-300 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">
