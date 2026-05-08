@@ -27,7 +27,7 @@ const CTA = () => {
               Join our community today and start your journey towards a carbon-neutral lifestyle. It's free to get started.
             </p>
             <Link 
-              href="/auth" 
+              href="/auth/signup" 
               className="inline-flex px-12 py-6 rounded-2xl bg-green text-white text-xl font-bold shadow-2xl shadow-green/20 hover:scale-105 transition-transform"
             >
               Create Your Biome Account

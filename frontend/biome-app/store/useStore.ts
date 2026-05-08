@@ -11,7 +11,12 @@ interface EcoAction {
 
 interface UserProfile {
   name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: string;
   city: string;
+  country: string;
   habits: string[];
   points: number;
   streak: number;
@@ -61,7 +66,12 @@ export const useEcoStore = create<EcoStore>()(
     (set, get) => ({
       user: {
         name: "Alex",
+        firstName: "Alex",
+        lastName: "Masood",
+        email: "alex@biome.eco",
+        gender: "Male",
         city: "Lahore",
+        country: "Pakistan",
         habits: [],
         points: 2450,
         streak: 4,

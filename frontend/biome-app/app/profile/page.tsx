@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useEcoStore } from "@/store/useStore";
 import { 
   User, 
@@ -12,19 +13,72 @@ import {
   LogOut,
   Sparkles,
   Trophy,
-  Leaf
+  Leaf,
+  Globe,
+  Loader2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
-  const { user } = useEcoStore();
+  const { user, updateProfile } = useEcoStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (authUser) {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", authUser.id)
+            .single();
+
+          if (data && !error) {
+            updateProfile({
+              firstName: data.first_name,
+              lastName: data.last_name,
+              name: `${data.first_name} ${data.last_name}`,
+              email: data.email,
+              gender: data.gender,
+              city: data.city,
+              country: data.country,
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [updateProfile]);
 
   const achievements = [
     { name: "Pioneer", date: "Joined April 2026", icon: Shield, color: "text-green bg-green/10" },
     { name: "Eco Warrior", date: "10 Actions Logged", icon: Award, color: "text-orange bg-orange/10" },
     { name: "Streak Master", date: "7 Day Streak", icon: Sparkles, color: "text-green bg-green/10" },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="animate-spin text-green" size={40} />
+      </div>
+    );
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out successfully");
+    window.location.href = "/";
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 animate-in slide-in-from-bottom-4 duration-700">
@@ -44,27 +98,34 @@ export default function ProfilePage() {
           <div className="bento-card flex flex-col items-center text-center p-8">
             <div className="relative mb-6">
               <div className="h-24 w-24 rounded-full bg-green/20 flex items-center justify-center text-4xl overflow-hidden border-4 border-white shadow-xl">
-                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt="avatar" />
+                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.firstName}`} alt="avatar" />
               </div>
               <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-xl shadow-lg border border-black/5">
                 <Shield className="text-green" size={20} />
               </div>
             </div>
-            <h2 className="text-2xl font-black text-header mb-1">{user.name}</h2>
+            <h2 className="text-2xl font-black text-header mb-1">{user.firstName} {user.lastName}</h2>
             <p className="text-sm font-bold text-green uppercase tracking-widest mb-6">{user.tier} Guardian</p>
             
             <div className="w-full space-y-3">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 text-left">
-                <MapPin size={18} className="text-foreground/40" />
-                <span className="text-sm font-medium text-header">{user.city || "San Francisco"}</span>
+                <Mail size={18} className="text-foreground/40 shrink-0" />
+                <span className="text-sm font-medium text-header truncate">{user.email}</span>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 text-left">
-                <Mail size={18} className="text-foreground/40" />
-                <span className="text-sm font-medium text-header">{user.name.toLowerCase()}@biome.eco</span>
+                <User size={18} className="text-foreground/40 shrink-0" />
+                <span className="text-sm font-medium text-header capitalize">{user.gender || "Not specified"}</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 text-left">
+                <MapPin size={18} className="text-foreground/40 shrink-0" />
+                <span className="text-sm font-medium text-header">{user.city}, {user.country}</span>
               </div>
             </div>
 
-            <button className="w-full mt-8 flex items-center justify-center gap-2 text-foreground/40 hover:text-red-500 font-bold text-sm transition-colors pt-4 border-t border-black/5">
+            <button 
+              onClick={handleSignOut}
+              className="w-full mt-8 flex items-center justify-center gap-2 text-foreground/40 hover:text-red-500 font-bold text-sm transition-colors pt-4 border-t border-black/5"
+            >
               <LogOut size={18} /> Sign Out
             </button>
           </div>

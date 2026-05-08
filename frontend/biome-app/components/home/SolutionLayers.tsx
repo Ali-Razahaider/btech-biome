@@ -74,7 +74,7 @@ const SolutionLayers = () => {
                 ))}
               </ul>
               <Link
-                href="/auth"
+                href="/auth/signup"
                 className="inline-flex items-center gap-2 font-bold text-header hover:gap-3 transition-all"
               >
                 Explore Layer <ArrowRight size={18} />

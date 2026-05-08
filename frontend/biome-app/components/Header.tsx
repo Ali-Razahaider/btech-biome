@@ -165,7 +165,7 @@ export default function Header() {
                   transition={{ duration: 0.3 }}
                 >
                   <Link
-                    href="/auth"
+                    href="/auth/login"
                     className={cn(
                       "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground",
                     )}
@@ -177,7 +177,7 @@ export default function Header() {
             </AnimatePresence>
 
             <Link
-              href={user ? "/dashboard" : "/auth"}
+              href={user ? "/dashboard" : "/auth/signup"}
               className={cn(
                 "relative h-11 min-w-[115px] flex items-center justify-center rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden bg-green text-white shadow-lg shadow-green/20",
                 isScrolled && "h-10 min-w-[135px]",
@@ -266,7 +266,7 @@ export default function Header() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-black/2 hover:bg-black/5 transition-all"
+                    className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all"
                   >
                     <span className="font-semibold text-foreground/80">
                       {item.name}
@@ -275,7 +275,7 @@ export default function Header() {
                   </Link>
                 ))}
                 <Link
-                  href={user ? "/dashboard" : "/auth"}
+                  href={user ? "/dashboard" : "/auth/signup"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="mt-4 w-full py-4 rounded-2xl bg-green text-white text-center font-bold shadow-lg shadow-green/20"
                 >

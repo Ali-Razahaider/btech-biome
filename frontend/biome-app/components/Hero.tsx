@@ -37,7 +37,7 @@ export default function Hero() {
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Link 
-              href="/auth" 
+              href="/auth/signup" 
               className="group relative px-10 py-5 rounded-2xl bg-green text-white text-lg font-bold shadow-2xl shadow-green/20 hover:scale-105 transition-transform duration-300 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">

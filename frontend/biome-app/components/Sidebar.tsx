@@ -45,15 +45,14 @@ export default function Sidebar() {
             <Image 
               src="/biome.png" 
               alt="Biome Logo" 
-              width={192} 
-              height={58} 
+              width={150} 
+              height={150} 
               className="h-12 w-auto object-contain"
               priority
             />
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-green/60 -mt-1 block ml-1">Vitality Mode</span>
+         
         </div>
-
         <nav className="flex flex-col gap-2 grow">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
