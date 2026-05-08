@@ -147,11 +147,11 @@ export default function LandingPage() {
               <Leaf size={400} />
             </div>
             <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-4xl md:text-6xl font-black mb-8">
+              <h2 className="text-4xl md:text-6xl text-white! font-black mb-8">
                 Ready to make <TextType 
                   as="span"
                   text={["an impact?", "a change?", "history?"]}
-                  className="bg-gradient-to-r from-green to-emerald-400 bg-clip-text text-transparent inline-block"
+                  className="bg-linear-to-r from-green to-emerald-400 bg-clip-text text-transparent inline-block"
                   cursorClassName="text-green"
                   typingSpeed={100}
                 />
