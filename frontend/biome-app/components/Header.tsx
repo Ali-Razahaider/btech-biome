@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
-  Leaf,
   Menu,
   X,
   ChevronRight,
@@ -75,7 +75,7 @@ export default function Header() {
           paddingTop: isScrolled ? "1rem" : "1.5rem",
         }}
         transition={{ duration: 0.5, ease: easeSmooth }}
-        className="fixed top-0 left-0 w-full hidden lg:flex justify-center z-[1000]"
+        className="fixed  top-0 left-0 w-full hidden lg:flex justify-center z-[1000]"
       >
         <motion.div
           className={cn(
@@ -132,22 +132,18 @@ export default function Header() {
             <Link href="/" className="flex items-center gap-2 group">
               <div
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
-                  isScrolled
-                    ? "bg-green text-white shadow-lg shadow-green/20"
-                    : "bg-white text-green shadow-xl shadow-white/10",
+                  "flex items-center justify-center transition-all duration-300 group-hover:scale-110",
                 )}
               >
-                <Leaf size={20} />
+                <Image 
+                  src="/biome.png" 
+                  alt="Biome Logo" 
+                  width={168} 
+                  height={168} 
+                  className="h-15 w-15  object-contain"
+                  priority
+                />
               </div>
-              <span
-                className={cn(
-                  "text-xl font-bold tracking-tight transition-colors duration-300",
-                  isScrolled ? "text-header" : "text-header",
-                )}
-              >
-                Biome
-              </span>
             </Link>
           </motion.div>
 
@@ -232,24 +228,17 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
           <div
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-              isScrolled
-                ? "bg-green text-white shadow-lg shadow-green/20"
-                : isLandingPage
-                  ? "bg-white text-green"
-                  : "bg-green text-white",
+              "flex items-center justify-center transition-all duration-300",
             )}
           >
-            <Leaf size={18} />
+            <Image 
+              src="/biome.png" 
+              alt="Biome Logo" 
+              width={144} 
+              height={144} 
+              className="h-10 w-auto object-contain"
+            />
           </div>
-          <span
-            className={cn(
-              "text-lg font-bold tracking-tight transition-colors duration-300",
-              isScrolled ? "text-header" : "text-header",
-            )}
-          >
-            Biome
-          </span>
         </Link>
 
         <button
@@ -277,7 +266,7 @@ export default function Header() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all"
+                    className="flex items-center justify-between p-4 rounded-2xl bg-black/2 hover:bg-black/5 transition-all"
                   >
                     <span className="font-semibold text-foreground/80">
                       {item.name}

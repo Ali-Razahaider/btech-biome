@@ -3,15 +3,16 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { 
   LayoutDashboard, 
   Calculator, 
   Users, 
   Map as MapIcon, 
   User,
-  Leaf,
   Settings,
-  LogOut
+  LogOut,
+  Leaf
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -39,14 +40,18 @@ export default function Sidebar() {
     <>
       {/* Sidebar for Desktop */}
       <aside className="fixed left-0 top-0 hidden h-full w-72 flex-col border-r border-black/5 bg-white px-6 py-10 md:flex z-40">
-        <div className="mb-12 flex items-center gap-3 px-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green text-white shadow-lg shadow-green/20">
-            <Leaf size={28} />
+        <div className="mb-12 flex flex-col gap-3 px-2">
+          <div className="flex items-center justify-start transition-all duration-300">
+            <Image 
+              src="/biome.png" 
+              alt="Biome Logo" 
+              width={192} 
+              height={58} 
+              className="h-12 w-auto object-contain"
+              priority
+            />
           </div>
-          <div>
-            <span className="text-2xl font-black tracking-tighter text-header block">Biome</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-green/60 -mt-1 block">Vitality Mode</span>
-          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-green/60 -mt-1 block ml-1">Vitality Mode</span>
         </div>
 
         <nav className="flex flex-col gap-2 grow">
