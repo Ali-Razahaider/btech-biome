@@ -63,7 +63,7 @@ export default function Header() {
       ];
 
   // Super smooth easing curve for the Vercel/Apple feel
-  const easeSmooth: [number, number, number, number] = [0.16, 1, 0.3, 1];
+  const easeSmooth = cubicBezier(0.16, 1, 0.3, 1);
 
   return (
     <>
