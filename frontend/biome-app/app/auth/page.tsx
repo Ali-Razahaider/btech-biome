@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { supabase, getDisplayName } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { supabase, getDisplayName } from "@/lib/supabaseClient";
 
 export default function AuthPage() {
   const router = useRouter();
