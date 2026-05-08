@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { authApi } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +30,12 @@ export default function LoginPage() {
       toast.error(error.message);
       setLoading(false);
     } else {
+      // Sync with backend on login
+      try {
+        await authApi.sync({ email });
+      } catch (err) {
+        console.error("Login sync failed:", err);
+      }
       toast.success("Welcome back to Biome!");
       router.push("/dashboard");
     }
