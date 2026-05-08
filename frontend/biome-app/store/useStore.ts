@@ -264,7 +264,10 @@ export const useEcoStore = create<EcoStore>()(
           try {
             const history = await footprintApi.getHistory();
             if (history && history.length > 0) {
-              score = Math.max(0, Math.min(100, 100 - Math.round(history[0].total_co2e * 10)));
+              const latest = history[0];
+              // Convert KG to Tonnes, then multiply by 10 to get a deduction from 100
+              const tonnes = latest.total_co2e / 1000;
+              score = Math.max(0, Math.min(100, Math.round(100 - (tonnes * 10))));
             }
           } catch {
             // No footprint yet — that's fine
