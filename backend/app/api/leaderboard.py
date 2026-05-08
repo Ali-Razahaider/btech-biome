@@ -12,6 +12,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=list[LeaderboardEntry])
+@router.get("/global", response_model=list[LeaderboardEntry])
 async def get_leaderboard(
     filter: str = Query("alltime", enum=["alltime", "weekly", "monthly"]),
     db: AsyncSession = Depends(get_db_session),
