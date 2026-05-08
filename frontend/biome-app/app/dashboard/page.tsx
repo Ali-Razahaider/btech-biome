@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   Flame, 
@@ -16,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useEcoStore } from "@/store/useStore";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 const TIER_CONFIG = {
   Bronze: { color: "#CD7F32", min: 0, max: 1500, next: "Silver" },
@@ -25,7 +29,18 @@ const TIER_CONFIG = {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   const { user, actions } = useEcoStore();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/auth");
+      }
+    };
+    checkUser();
+  }, [router]);
   
   const currentTier = TIER_CONFIG[user.tier] || TIER_CONFIG.Bronze;
   const tierProgress = ((user.points - currentTier.min) / (currentTier.max - currentTier.min)) * 100;
