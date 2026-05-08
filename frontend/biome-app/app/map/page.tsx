@@ -7,6 +7,8 @@ import { Globe, Wind, Info, MapPin, Zap, Brain, TrendingUp, X } from "lucide-rea
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+import { aiApi } from "@/lib/api";
+
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-black/5 animate-pulse rounded-[2rem]" />
@@ -15,6 +17,7 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 export default function MapPage() {
   const { user, aqi, fetchAQI, selectedZone, setSelectedZone } = useEcoStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -24,8 +27,20 @@ export default function MapPage() {
   }, [user.city, fetchAQI]);
 
   const handleAnalyze = async () => {
+    if (!selectedZone) return;
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    setAnalysisResult(null); // Clear previous
+    try {
+      const result = await aiApi.analyzeBiomass({
+        lat: selectedZone.coords[0],
+        lng: selectedZone.coords[1],
+        district: selectedZone.name,
+        aqi: aqi?.value || 0
+      });
+      setAnalysisResult(result);
+    } catch (e) {
+      console.error("AI Analysis failed", e);
+    }
     setIsAnalyzing(false);
   };
 
@@ -96,7 +111,7 @@ export default function MapPage() {
                   <h2 className="text-2xl font-black text-header mb-1">{selectedZone.name}</h2>
                   <p className="text-foreground/60 font-medium mb-8">AI Feasibility Assessment</p>
 
-                  {isAnalyzing ? (
+                  {isAnalyzing || !analysisResult ? (
                     <div className="py-20 flex flex-col items-center justify-center text-center">
                        <motion.div 
                         animate={{ rotate: 360 }}
@@ -112,21 +127,21 @@ export default function MapPage() {
                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                          <div className="flex justify-between items-center mb-4">
                            <span className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Feasibility Score</span>
-                           <span className="text-2xl font-black text-green">8.4/10</span>
+                           <span className="text-2xl font-black text-green">{analysisResult.feasibility_score}/10</span>
                          </div>
                          <div className="h-3 bg-black/5 rounded-full overflow-hidden">
-                           <div className="h-full bg-green w-[84%]" />
+                           <div className="h-full bg-green transition-all duration-1000" style={{ width: `${analysisResult.feasibility_score * 10}%` }} />
                          </div>
                        </div>
 
                        <div className="grid grid-cols-2 gap-4">
                          <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
                             <p className="text-[10px] font-bold text-blue-500 uppercase mb-1">CO2 Saved</p>
-                            <p className="text-xl font-black text-header">12k <span className="text-xs font-medium">Tons</span></p>
+                            <p className="text-xl font-black text-header">{(analysisResult.co2_saved_kg / 1000).toFixed(1)}k <span className="text-xs font-medium">Tons</span></p>
                          </div>
                          <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
                             <p className="text-[10px] font-bold text-orange uppercase mb-1">Households</p>
-                            <p className="text-xl font-black text-header">2,400+</p>
+                            <p className="text-xl font-black text-header">{analysisResult.households_powered?.toLocaleString() || 0}</p>
                          </div>
                        </div>
 
@@ -135,11 +150,7 @@ export default function MapPage() {
                            <TrendingUp className="text-green" size={18} /> AI Recommendations
                          </h3>
                          <ul className="space-y-4">
-                           {[
-                             "High wheat residue makes this an ideal candidate for a community biogas plant.",
-                             "Could reduce seasonal smog in local vicinity by up to 14%.",
-                             "Existing infrastructure allows for easy grid integration."
-                           ].map((tip, i) => (
+                           {(analysisResult.tips || []).map((tip: string, i: number) => (
                              <li key={i} className="text-sm text-foreground/60 leading-relaxed pl-4 border-l-2 border-green/30">
                                {tip}
                              </li>
