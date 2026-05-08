@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Leaf, Wind, MapPin, Target, Sparkles, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { useEcoStore } from "@/store/useStore";
+import Link from "next/link";
 
 const steps = [
   { id: 1, title: "Your Location", subtitle: "Where are you planting roots?", icon: MapPin },
@@ -23,12 +25,29 @@ const goals = [
 ];
 
 export default function AuthPage() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const { user, updateProfile } = useEcoStore();
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+  const { user: storeUser, updateProfile } = useEcoStore();
+  
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/dashboard");
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    city: user.city || "",
-    name: user.name || "",
-    habits: user.habits || [],
+    city: storeUser.city || "",
+    name: storeUser.name || "",
+    habits: storeUser.habits || [],
   });
 
   const toggleGoal = (goal: string) => {
@@ -39,12 +58,42 @@ export default function AuthPage() {
     setFormData({ ...formData, habits: newHabits });
   };
 
-  const handleFinish = () => {
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (isLogin) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        router.push("/dashboard");
+      }
+    } else {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setCurrentStep(1); // Move to onboarding after signup
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleFinish = async () => {
     updateProfile({
       city: formData.city,
       name: formData.name,
       habits: formData.habits,
     });
+    // Here you could also save this to Supabase profile table
   };
 
   return (
@@ -109,6 +158,7 @@ export default function AuthPage() {
                 <div className="flex items-center gap-4 mb-4">
                   <div className="bg-green/10 p-3 rounded-2xl text-green">
                     {(() => {
+                      if (currentStep === 0) return <Sparkles className="w-6 h-6" />;
                       const Icon = steps[currentStep - 1].icon;
                       return <Icon className="w-6 h-6" />;
                     })()}
@@ -121,9 +171,58 @@ export default function AuthPage() {
                     />
                   </div>
                 </div>
-                <h1 className="text-4xl font-extrabold text-header mb-2">{steps[currentStep - 1].title}</h1>
-                <p className="text-foreground/60 font-medium">{steps[currentStep - 1].subtitle}</p>
+                <h1 className="text-4xl font-extrabold text-header mb-2">
+                  {currentStep === 0 ? (isLogin ? "Welcome Back" : "Join the Biome") : steps[currentStep - 1].title}
+                </h1>
+                <p className="text-foreground/60 font-medium">
+                  {currentStep === 0 ? (isLogin ? "Sign in to continue your journey" : "Create an account to start your impact") : steps[currentStep - 1].subtitle}
+                </p>
               </div>
+
+              {currentStep === 0 && (
+                <form onSubmit={handleAuth} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="alex@example.com"
+                      required
+                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest ml-1">Password</label>
+                    <input 
+                      type="password" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="w-full bg-black/5 border border-transparent rounded-2xl py-4 px-6 focus:bg-white focus:border-green/20 outline-none text-header transition-all text-lg font-bold shadow-sm"
+                    />
+                  </div>
+                  {error && <p className="text-red-500 text-sm font-medium ml-1">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full btn-primary py-4 rounded-2xl font-black shadow-lg shadow-green/20 flex items-center justify-center gap-2"
+                  >
+                    {loading ? "Processing..." : isLogin ? "Sign In" : "Create Account"}
+                    {!loading && <ArrowRight className="w-5 h-5" />}
+                  </button>
+                  <div className="text-center">
+                    <button 
+                      type="button"
+                      onClick={() => setIsLogin(!isLogin)}
+                      className="text-sm font-bold text-green hover:underline"
+                    >
+                      {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+                    </button>
+                  </div>
+                </form>
+              )}
 
               {currentStep === 1 && (
                 <div className="space-y-6">
@@ -181,31 +280,33 @@ export default function AuthPage() {
                 </div>
               )}
 
-              <div className="mt-12 flex gap-4">
-                {currentStep > 1 && (
-                  <button
-                    onClick={() => setCurrentStep(prev => prev - 1)}
-                    className="p-4 rounded-2xl border border-black/10 text-header hover:bg-black/5 transition-all flex items-center justify-center"
-                  >
-                    <ArrowLeft className="w-6 h-6" />
-                  </button>
-                )}
-                
-                {currentStep < 3 ? (
-                  <button
-                    onClick={() => setCurrentStep(prev => prev + 1)}
-                    className="grow btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20"
-                  >
-                    Continue <ArrowRight className="w-5 h-5" />
-                  </button>
-                ) : (
-                  <Link href="/dashboard" className="grow" onClick={handleFinish}>
-                    <button className="w-full btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20">
-                      Enter the Biome <ArrowRight className="w-5 h-5" />
+              {currentStep > 0 && (
+                <div className="mt-12 flex gap-4">
+                  {currentStep > 1 && (
+                    <button
+                      onClick={() => setCurrentStep(prev => prev - 1)}
+                      className="p-4 rounded-2xl border border-black/10 text-header hover:bg-black/5 transition-all flex items-center justify-center"
+                    >
+                      <ArrowLeft className="w-6 h-6" />
                     </button>
-                  </Link>
-                )}
-              </div>
+                  )}
+                  
+                  {currentStep < 3 ? (
+                    <button
+                      onClick={() => setCurrentStep(prev => prev + 1)}
+                      className="grow btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20"
+                    >
+                      Continue <ArrowRight className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <Link href="/dashboard" className="grow" onClick={handleFinish}>
+                      <button className="w-full btn-primary flex items-center justify-center gap-2 shadow-lg shadow-green/20">
+                        Enter the Biome <ArrowRight className="w-5 h-5" />
+                      </button>
+                    </Link>
+                  )}
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

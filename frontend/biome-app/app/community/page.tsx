@@ -34,14 +34,17 @@ export default function Community() {
     loadAQI();
   }, [user.city, fetchAQI]);
 
-  const leaderboard = [...MOCK_LEADERBOARD, { 
-    id: 99, 
-    name: user.name + " (You)", 
-    points: user.points, 
-    level: Math.floor(user.points / 100), 
-    avatar: "👤",
-    isMe: true 
-  }].sort((a, b) => b.points - a.points);
+  const leaderboard = [
+    ...MOCK_LEADERBOARD.map(h => ({ ...h, isMe: false })), 
+    { 
+      id: 99, 
+      name: user.name + " (You)", 
+      points: user.points, 
+      level: Math.floor(user.points / 100), 
+      avatar: "👤",
+      isMe: true 
+    }
+  ].sort((a, b) => b.points - a.points);
 
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
