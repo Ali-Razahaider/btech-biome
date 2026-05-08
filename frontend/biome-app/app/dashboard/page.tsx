@@ -31,7 +31,7 @@ const TIER_CONFIG = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, actions, syncWithBackend } = useEcoStore();
+  const { user, actions, syncWithBackend, challenges, toggleChallenge } = useEcoStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,8 @@ export default function Dashboard() {
       }
     };
     checkUser();
-  }, [router, syncWithBackend]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const currentTier = TIER_CONFIG[user.tier] || TIER_CONFIG.Bronze;
   const tierProgress = ((user.points - currentTier.min) / (currentTier.max - currentTier.min)) * 100;
@@ -243,36 +244,40 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Challenge Card Preview */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bento-card flex flex-col justify-between"
-        >
-          <div>
-            <div className="bg-orange/10 text-orange text-[10px] font-bold px-2 py-1 rounded-full w-fit mb-4 uppercase tracking-wider">
-              Weekly Challenge
+        {challenges.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bento-card flex flex-col justify-between"
+          >
+            <div>
+              <div className="bg-orange/10 text-orange text-[10px] font-bold px-2 py-1 rounded-full w-fit mb-4 uppercase tracking-wider">
+                Trending Challenge
+              </div>
+              <h3 className="text-2xl font-black text-header mb-2 leading-tight">{challenges[0].title}</h3>
+              <p className="text-foreground/60 text-sm font-medium mb-6">Earn {challenges[0].tag} points and help the community.</p>
+              
+              <div className="space-y-2 mb-8">
+                <div className="flex justify-between text-xs font-bold text-header">
+                  <span>Community Progress</span>
+                  <span>{challenges[0].progress}%</span>
+                </div>
+                <div className="h-2 bg-black/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-green" style={{ width: `${challenges[0].progress}%` }} />
+                </div>
+              </div>
             </div>
-            <h3 className="text-2xl font-black text-header mb-2 leading-tight">No Plastic Week</h3>
-            <p className="text-foreground/60 text-sm font-medium mb-6">Avoid all single-use plastics for 7 days straight.</p>
             
-            <div className="space-y-2 mb-8">
-              <div className="flex justify-between text-xs font-bold text-header">
-                <span>Progress</span>
-                <span>65%</span>
-              </div>
-              <div className="h-2 bg-black/5 rounded-full overflow-hidden">
-                <div className="h-full bg-green w-[65%]" />
-              </div>
-            </div>
-          </div>
-          
-          <button className="btn-orange w-full shadow-lg shadow-orange/20">
-            Join Challenge
-          </button>
-        </motion.div>
+            <button 
+              onClick={() => toggleChallenge(challenges[0].id)}
+              className="btn-orange w-full shadow-lg shadow-orange/20"
+            >
+              {challenges[0].joined ? "View Details" : "Join Challenge"}
+            </button>
+          </motion.div>
+        )}
       </div>
     </div>
   );
 }
-

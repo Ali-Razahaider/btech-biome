@@ -12,46 +12,39 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
   loading: () => <div className="w-full h-full bg-black/5 animate-pulse rounded-[2.5rem]" />
 });
 
-const MOCK_LEADERBOARD = [
-  { id: 1, name: "EcoEnthusiast", points: 4850, level: 42, avatar: "🌍" },
-  { id: 2, name: "GreenGuard", points: 4210, level: 38, avatar: "🌱" },
-  { id: 3, name: "SolarSage", points: 3980, level: 35, avatar: "☀️" },
-  { id: 4, name: "PlanetProtector", points: 3450, level: 31, avatar: "🌊" },
-  { id: 5, name: "CarbonCracker", points: 3120, level: 28, avatar: "🍃" },
-];
-
 export default function Community() {
-  const { user, challenges, toggleChallenge, aqi, fetchAQI } = useEcoStore();
+  const { user, challenges, toggleChallenge, aqi, fetchAQI, leaderboard, fetchLeaderboard, syncWithBackend } = useEcoStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingAQI, setIsLoadingAQI] = useState(false);
 
   useEffect(() => {
-    const loadAQI = async () => {
+    const loadData = async () => {
       setIsLoadingAQI(true);
-      await fetchAQI(user.city || "San Francisco");
+      await Promise.all([
+        syncWithBackend(),
+        fetchAQI(user.city || "Lahore"),
+        fetchLeaderboard('alltime')
+      ]);
       setIsLoadingAQI(false);
     };
-    loadAQI();
-  }, [user.city, fetchAQI]);
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const leaderboard = [
-    ...MOCK_LEADERBOARD.map(h => ({ ...h, isMe: false })), 
-    { 
-      id: 99, 
-      name: user.name + " (You)", 
-      points: user.points, 
-      level: Math.floor(user.points / 100), 
-      avatar: "👤",
-      isMe: true 
-    }
-  ].sort((a, b) => b.points - a.points);
+  const displayLeaderboard = leaderboard.map(entry => ({
+    ...entry,
+    isMe: entry.user_id === user.email, // Or however you identify 'me'
+    name: entry.email.split('@')[0],
+    level: Math.floor(entry.eco_points / 100),
+    avatar: entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : "👤"
+  }));
 
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl font-extrabold text-header mb-1">Community Hub</h1>
-          <p className="text-foreground/60 font-medium italic">Join {MOCK_LEADERBOARD.length + 142} heroes protecting the biome.</p>
+          <p className="text-foreground/60 font-medium italic">Join {displayLeaderboard.length} heroes protecting the biome.</p>
         </div>
         <div className="flex gap-4 w-full md:w-auto">
           <div className="relative grow">
@@ -78,9 +71,9 @@ export default function Community() {
           </div>
 
           <div className="space-y-3">
-            {leaderboard.map((hero, idx) => (
+            {displayLeaderboard.map((hero, idx) => (
               <div
-                key={hero.id}
+                key={hero.user_id}
                 className={cn(
                   "flex items-center justify-between p-4 rounded-2xl transition-all border",
                   hero.isMe ? "bg-orange/10 border-orange/20" : "bg-black/5 border-transparent"
@@ -101,7 +94,7 @@ export default function Community() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-black text-sm text-header">{hero.points.toLocaleString()}</div>
+                  <div className="font-black text-sm text-header">{hero.eco_points.toLocaleString()}</div>
                   <div className="text-[8px] font-bold text-foreground/40 uppercase">PTS</div>
                 </div>
               </div>

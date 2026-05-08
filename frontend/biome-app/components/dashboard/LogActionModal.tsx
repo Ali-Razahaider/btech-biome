@@ -21,11 +21,11 @@ export default function LogActionModal({ isOpen, onClose }: LogActionModalProps)
   const { addAction } = useEcoStore();
   const [success, setSuccess] = useState(false);
 
-  const handleLog = (action: typeof ACTION_TYPES[0]) => {
-    addAction({
-      title: action.title,
+  const handleLog = async (action: typeof ACTION_TYPES[0]) => {
+    await addAction({
+      category: action.id,
+      description: action.title,
       points: action.points,
-      type: action.id,
     });
     setSuccess(true);
     setTimeout(() => {

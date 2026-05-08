@@ -28,11 +28,14 @@ const steps = [
 
 const COLORS = ["#55D688", "#3B82F6", "#F9A826", "#10B981"];
 
+import { footprintApi } from "@/lib/api";
+
 export default function Calculator() {
-  const { addAction, updateProfile } = useEcoStore();
+  const { addAction, updateProfile, syncWithBackend } = useEcoStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isCalculating, setIsCalculating] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [serverResult, setServerResult] = useState<any>(null);
   
   const [values, setValues] = useState({
     transport: 50, // KM per week
@@ -41,40 +44,48 @@ export default function Calculator() {
     energy: 150,   // kWh per month
   });
 
-  const calculateTotal = () => {
-    // Basic conversion factors (Kg CO2e)
-    const transportCO2 = values.transport * 52 * 0.17; // 170g per km
-    const flightsCO2 = values.flights * 250;           // 250kg per hour
-    const dietCO2 = values.diet * 52 * 3.3;            // 3.3kg per meat meal
-    const energyCO2 = values.energy * 12 * 0.45;       // 0.45kg per kWh
-    
-    return {
-      total: (transportCO2 + flightsCO2 + dietCO2 + energyCO2) / 1000, // Tonnes
-      breakdown: [
-        { name: "Transport", value: transportCO2 },
-        { name: "Flights", value: flightsCO2 },
-        { name: "Diet", value: dietCO2 },
-        { name: "Energy", value: energyCO2 },
-      ]
-    };
-  };
-
-  const results = calculateTotal();
-
   const handleCalculate = async () => {
     setIsCalculating(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsCalculating(false);
-    setShowResult(true);
-    
-    updateProfile({ carbonScore: Math.max(0, 100 - Math.round(results.total * 5)) });
-    
-    addAction({
-      title: "Full Carbon Audit",
-      points: 50,
-      type: "education"
-    });
+    try {
+      const result = await footprintApi.calculate({
+        transport_km_per_week: values.transport,
+        flight_hours_per_year: values.flights,
+        monthly_kwh: values.energy,
+        meat_meals_per_week: values.diet
+      });
+      
+      setServerResult(result);
+      setIsCalculating(false);
+      setShowResult(true);
+      
+      await syncWithBackend();
+      
+      addAction({
+        category: "Education",
+        description: "Full Carbon Audit",
+        points: 50
+      });
+    } catch (error) {
+      console.error("Calculation failed:", error);
+      setIsCalculating(false);
+    }
   };
+
+  const localBreakdown = [
+    { name: "Transport", value: values.transport * 52 * 0.17 },
+    { name: "Flights", value: values.flights * 250 },
+    { name: "Diet", value: values.diet * 52 * 3.3 },
+    { name: "Energy", value: values.energy * 12 * 0.45 },
+  ];
+
+  const resultsData = serverResult ? [
+    { name: "Transport", value: serverResult.breakdown.transport },
+    { name: "Flights", value: serverResult.breakdown.flights },
+    { name: "Diet", value: serverResult.breakdown.diet },
+    { name: "Energy", value: serverResult.breakdown.energy },
+  ] : localBreakdown;
+
+  const liveTotal = (localBreakdown.reduce((sum, item) => sum + item.value, 0) / 1000);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -92,7 +103,7 @@ export default function Calculator() {
     setValues({ ...values, [stepId]: val });
   };
 
-  if (showResult) {
+  if (showResult && serverResult) {
     return (
       <div className="max-w-4xl mx-auto py-12 animate-in zoom-in duration-500">
         <div className="bento-card text-center p-12">
@@ -104,7 +115,7 @@ export default function Calculator() {
           
           <div className="flex flex-col items-center mb-12">
             <div className="text-7xl font-black text-header">
-              {results.total.toFixed(1)}
+              {serverResult.total_co2e.toFixed(1)}
             </div>
             <div className="text-sm font-bold text-foreground/40 uppercase tracking-widest mt-2">Tonnes CO2 / Year</div>
           </div>
@@ -116,7 +127,7 @@ export default function Calculator() {
                 <h3 className="font-bold text-header">Insight</h3>
               </div>
               <p className="text-sm text-foreground/70">
-                {results.breakdown[0].value > results.breakdown[2].value 
+                {serverResult.breakdown.transport > serverResult.breakdown.diet 
                   ? "Your transport emissions are your primary impact. Consider carpooling or switching to transit." 
                   : "Your dietary choices have a high impact. Skipping meat 2 more days could save 0.5 tonnes per year."}
               </p>
@@ -276,7 +287,7 @@ export default function Calculator() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={results.breakdown}
+                    data={resultsData}
                     cx="50%"
                     cy="50%"
                     innerRadius={80}
@@ -284,7 +295,7 @@ export default function Calculator() {
                     paddingAngle={8}
                     dataKey="value"
                   >
-                    {results.breakdown.map((_, index) => (
+                    {resultsData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
                     ))}
                   </Pie>
@@ -292,7 +303,7 @@ export default function Calculator() {
               </ResponsiveContainer>
               
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-5xl font-black text-header">{results.total.toFixed(1)}</span>
+                <span className="text-5xl font-black text-header">{liveTotal.toFixed(1)}</span>
                 <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Total Tonnes</span>
               </div>
             </div>
