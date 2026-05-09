@@ -34,7 +34,7 @@ const SolutionLayers = () => {
   ];
 
   return (
-    <section className="py-24 bg-slate-50">
+    <section className="py-24 ">
       <div className="container mx-auto px-4 md:px-12">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-black text-header mb-6">Our 3-Layer Solution</h2>

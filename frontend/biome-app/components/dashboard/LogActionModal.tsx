@@ -24,21 +24,29 @@ export default function LogActionModal({ isOpen, onClose }: LogActionModalProps)
   const [success, setSuccess] = useState(false);
 
   const handleLog = async (action: typeof ACTION_TYPES[0]) => {
-    await addAction({
-      category: action.id,
-      description: action.title,
-      points: action.points,
-    });
-    
-    toast.success(`Points earned! +${action.points} pts`, {
-      icon: '🌱',
-    });
+    const loadingToast = toast.loading(`Recording your impact for ${action.title}...`);
+    try {
+      await addAction({
+        category: action.id,
+        description: action.title,
+        points: action.points,
+      });
+      
+      toast.success(`Impact Recorded! +${action.points} pts`, {
+        id: loadingToast,
+        icon: '🌱',
+      });
 
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      onClose();
-    }, 1500);
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
+      }, 1500);
+    } catch (error) {
+      toast.error("Failed to log action. Please try again.", {
+        id: loadingToast,
+      });
+    }
   };
 
   return (

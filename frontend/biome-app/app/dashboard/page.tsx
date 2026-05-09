@@ -101,11 +101,24 @@ export default function Dashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary flex items-center gap-2 shadow-lg shadow-green/20"
+            className="btn-primary hidden md:flex items-center gap-2 shadow-lg shadow-green/20"
           >
             <Plus size={20} /> Log Action
           </motion.button>
         </div>
+      </div>
+
+      {/* Mobile Floating Action Button */}
+      <div className="fixed bottom-24 right-6 z-40 md:hidden">
+        <motion.button
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsModalOpen(true)}
+          className="w-16 h-16 rounded-[24px] bg-green text-white shadow-2xl shadow-green/40 flex items-center justify-center border-4 border-white/50 backdrop-blur-md"
+        >
+          <Plus size={32} />
+        </motion.button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

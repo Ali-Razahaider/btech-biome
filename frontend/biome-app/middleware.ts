@@ -62,7 +62,7 @@ export default async function middleware(request: NextRequest) {
   const isProtected = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))
 
   if (isProtected && !user) {
-    return NextResponse.redirect(new URL('/auth', request.url))
+    return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
   return response
