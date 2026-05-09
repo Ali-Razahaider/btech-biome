@@ -17,10 +17,14 @@ const icon = L.icon({
 interface MapProps {
   center: [number, number];
   aqi: number;
+  regionalAQIs?: { city: string; value: number; coords: [number, number] }[];
 }
 
 export default function MapComponent({ center, aqi }: MapProps) {
   const { biomassZones, setSelectedZone } = useEcoStore();
+  
+  // Safe center fallback for Pakistan (Lahore)
+  const mapCenter: [number, number] = center || [31.5204, 74.3587];
 
   const getAQIColor = (val: number) => {
     if (val < 50) return "#55D688"; // Green
@@ -39,8 +43,8 @@ export default function MapComponent({ center, aqi }: MapProps) {
   return (
     <div className="w-full h-full z-0 relative">
       <MapContainer 
-        center={center} 
-        zoom={10} 
+        center={mapCenter} 
+        zoom={8} 
         scrollWheelZoom={false} 
         style={{ height: "100%", width: "100%", background: "#F8FAF9" }}
       >
@@ -50,10 +54,10 @@ export default function MapComponent({ center, aqi }: MapProps) {
         />
         
         {/* User Location Marker */}
-        <Marker position={center} icon={icon}>
+        <Marker position={mapCenter} icon={icon}>
           <Popup className="custom-popup">
             <div className="p-2 min-w-[150px]">
-              <h3 className="font-extrabold text-header mb-2">Live AQI</h3>
+              <h3 className="font-extrabold text-header mb-2">Live AQI (Your City)</h3>
               <div className="flex items-center justify-between bg-black/5 p-3 rounded-xl">
                 <span className="text-[10px] font-bold text-foreground/40 uppercase">Air Index</span>
                 <span className="font-black text-lg" style={{ color: getAQIColor(aqi) }}>{aqi}</span>
@@ -61,6 +65,30 @@ export default function MapComponent({ center, aqi }: MapProps) {
             </div>
           </Popup>
         </Marker>
+        
+        {/* Regional AQI Markers */}
+        {regionalAQIs?.map((item, idx) => (
+          <Marker 
+            key={`reg-${idx}`} 
+            position={item.coords} 
+            icon={L.divIcon({
+              className: "custom-div-icon",
+              html: `<div style="background-color: ${getAQIColor(item.value)}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3); display: flex; items-center; justify-center; color: white; font-size: 8px; font-weight: 900;">${item.value}</div>`,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            })}
+          >
+            <Popup className="custom-popup">
+              <div className="p-2 min-w-[150px]">
+                <h3 className="font-extrabold text-header mb-2">{item.city} AQI</h3>
+                <div className="flex items-center justify-between bg-black/5 p-3 rounded-xl">
+                  <span className="text-[10px] font-bold text-foreground/40 uppercase">Air Index</span>
+                  <span className="font-black text-lg" style={{ color: getAQIColor(item.value) }}>{item.value}</span>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
 
         {/* Biomass Zones */}
         {biomassZones.map((zone) => (
@@ -82,9 +110,9 @@ export default function MapComponent({ center, aqi }: MapProps) {
               position={zone.coords} 
               icon={L.divIcon({
                 className: "custom-div-icon",
-                html: `<div style="background-color: ${getPotentialColor(zone.potential)}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2);"></div>`,
-                iconSize: [12, 12],
-                iconAnchor: [6, 6],
+                html: `<div style="background-color: ${getPotentialColor(zone.potential)}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(0,0,0,0.4); display: flex; align-items: center; justify-center;"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
               })}
               eventHandlers={{
                 click: () => setSelectedZone(zone),

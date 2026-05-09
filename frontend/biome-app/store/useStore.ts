@@ -154,27 +154,8 @@ export const useEcoStore = create<EcoStore>()(
             description: action.description,
             points: action.points,
           });
-          // Refresh only user + actions (lightweight)
-          const [userData, recentActions] = await Promise.all([
-            authApi.getMe(),
-            actionsApi.getRecent(),
-          ]);
-          const mappedActions = recentActions.map((a: any) => ({
-            id: a.id,
-            title: a.description,
-            points: a.points,
-            timestamp: a.logged_at,
-            type: a.category.toLowerCase(),
-          }));
-          set((state) => ({
-            user: {
-              ...state.user,
-              points: userData.eco_points,
-              streak: userData.streak,
-              tier: get().calculateTier(userData.eco_points),
-            },
-            actions: mappedActions,
-          }));
+          // Refresh everything to ensure dashboard is up to date
+          await get().syncWithBackend();
         } catch (error) {
           // Rollback optimistic update
           set((state) => ({

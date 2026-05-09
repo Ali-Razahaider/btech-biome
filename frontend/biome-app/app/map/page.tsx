@@ -20,12 +20,29 @@ export default function MapPage() {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
+  const [regionalData, setRegionalData] = useState<any[]>([]);
+  
+  const MAJOR_CITIES = ["Sheikhupura", "Faisalabad", "Gujranwala", "Multan", "Sialkot"];
+
   useEffect(() => {
     const load = async () => {
       await Promise.all([
         syncWithBackend(),
         fetchAQI(user.city || "Lahore")
       ]);
+      
+      // Fetch regional data in parallel
+      const regionalPromises = MAJOR_CITIES.map(async (city) => {
+        try {
+          const data = await envApi.getAQI(city);
+          return { city, value: data.aqi, coords: data.city.geo };
+        } catch {
+          return null;
+        }
+      });
+      
+      const results = await Promise.all(regionalPromises);
+      setRegionalData(results.filter(r => r !== null));
     };
     load();
   }, [user.city, fetchAQI, syncWithBackend]);
@@ -78,9 +95,11 @@ export default function MapPage() {
 
       <div className="grid lg:grid-cols-4 gap-6 relative">
         <div className="lg:col-span-3 bento-card p-0 overflow-hidden min-h-[600px] relative border-4 border-white">
-          {aqi?.coords && (
-            <MapComponent center={[aqi.coords[0], aqi.coords[1]]} aqi={aqi.value} />
-          )}
+          <MapComponent 
+            center={aqi?.coords ? [aqi.coords[0], aqi.coords[1]] : [31.5204, 74.3587]} 
+            aqi={aqi?.value || 0} 
+            regionalAQIs={regionalData}
+          />
           
           <div className="absolute bottom-6 left-6 z-10">
             <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-black/5 shadow-lg max-w-xs">
