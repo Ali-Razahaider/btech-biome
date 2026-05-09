@@ -58,9 +58,23 @@ export default function Header() {
   const authenticatedNavItems = user
     ? navItems
     : [
-        { name: "Features", href: "#features" },
-        { name: "Impact", href: "#impact" },
+        { name: "Home", href: "/#hero" },
+        { name: "Impact", href: "/#impact" },
+        { name: "Challenge", href: "/#challenge" },
+        { name: "Solutions", href: "/#solutions" },
+        { name: "Features", href: "/#features" },
       ];
+
+  const handleLogout = async () => {
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      await supabase.auth.signOut();
+      setUser(null);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   // Super smooth easing curve for the Vercel/Apple feel
   const easeSmooth = cubicBezier(0.16, 1, 0.3, 1);
@@ -102,20 +116,25 @@ export default function Header() {
             }}
             transition={{ duration: 0.6, ease: easeSmooth }}
           >
-            {authenticatedNavItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-colors duration-200",
-                  isScrolled
-                    ? "text-foreground/60 hover:text-foreground"
-                    : "text-foreground/80 hover:text-green",
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {authenticatedNavItems.map((item) => {
+              const isHash = item.href.startsWith("/#");
+              const targetHref = isHash && isLandingPage ? item.href.substring(1) : item.href;
+              
+              return (
+                <Link
+                  key={item.href}
+                  href={targetHref}
+                  className={cn(
+                    "text-sm font-medium transition-colors duration-200",
+                    isScrolled
+                      ? "text-foreground/60 hover:text-foreground"
+                      : "text-foreground/80 hover:text-green",
+                  )}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </motion.nav>
 
           {/* Logo - Glides to Left */}
@@ -164,14 +183,25 @@ export default function Header() {
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Link
-                    href="/auth/login"
-                    className={cn(
-                      "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground",
-                    )}
-                  >
-                    Login
-                  </Link>
+                  {user ? (
+                    <button
+                      onClick={handleLogout}
+                      className={cn(
+                        "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground cursor-pointer",
+                      )}
+                    >
+                      Logout
+                    </button>
+                  ) : (
+                    <Link
+                      href="/auth/login"
+                      className={cn(
+                        "text-sm font-medium transition-colors duration-200 text-foreground/60 hover:text-foreground",
+                      )}
+                    >
+                      Login
+                    </Link>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -261,19 +291,44 @@ export default function Header() {
               className="absolute top-full left-4 right-4 mt-2  rounded-[24px] p-6 shadow-2xl border border-black/5 overflow-hidden"
             >
               <div className="flex flex-col gap-1">
-                {authenticatedNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all"
+                {authenticatedNavItems.map((item) => {
+                  const isHash = item.href.startsWith("/#");
+                  const targetHref = isHash && isLandingPage ? item.href.substring(1) : item.href;
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      href={targetHref}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all"
+                    >
+                      <span className="font-semibold text-foreground/80">
+                        {item.name}
+                      </span>
+                      <ChevronRight size={18} className="text-foreground/30" />
+                    </Link>
+                  );
+                })}
+                {user ? (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl bg-red-50 text-red-600 hover:bg-red-100 transition-all mt-2"
                   >
-                    <span className="font-semibold text-foreground/80">
-                      {item.name}
-                    </span>
+                    <span className="font-semibold">Logout</span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.02] hover:bg-black/[0.05] transition-all mt-2"
+                  >
+                    <span className="font-semibold text-foreground/80">Login</span>
                     <ChevronRight size={18} className="text-foreground/30" />
                   </Link>
-                ))}
+                )}
                 <Link
                   href={user ? "/dashboard" : "/auth/signup"}
                   onClick={() => setMobileMenuOpen(false)}
