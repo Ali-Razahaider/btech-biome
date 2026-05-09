@@ -52,16 +52,28 @@ app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    # This ensures CORS headers are present even on internal errors
-    response = JSONResponse(
+    logger.exception(f"Unhandled exception during {request.method} {request.url}")
+    return JSONResponse(
         status_code=500,
-        content={"detail": str(exc), "type": type(exc).__name__},
+        content={"detail": "Internal Server Error", "error": str(exc)},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
     )
-    # Manually add CORS headers if the middleware didn't get to it
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    return response
+
+@app.get("/api/db-test")
+async def test_db_connection(db: AsyncSession = Depends(get_db_session)):
+    try:
+        from sqlalchemy import text
+        await db.execute(text("SELECT 1"))
+        return {"status": "connected", "database": "verified"}
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": str(e)}
+        )
 
 @app.get("/")
 async def root():
