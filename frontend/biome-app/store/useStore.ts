@@ -115,9 +115,9 @@ export const useEcoStore = create<EcoStore>()(
       setSelectedZone: (zone) => set({ selectedZone: zone }),
 
       calculateTier: (points) => {
-        if (points >= 5000) return "Platinum";
-        if (points >= 3000) return "Gold";
-        if (points >= 1500) return "Silver";
+        if (points >= 2000) return "Platinum";
+        if (points >= 1000) return "Gold";
+        if (points >= 500) return "Silver";
         return "Bronze";
       },
 

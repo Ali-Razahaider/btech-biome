@@ -27,10 +27,10 @@ import WeeklyPlan from "@/components/dashboard/WeeklyPlan";
 import { Skeleton, SkeletonStatCard, SkeletonActionRow } from "@/components/Skeleton";
 
 const TIER_CONFIG = {
-  Bronze: { color: "#CD7F32", min: 0, max: 1500, next: "Silver" },
-  Silver: { color: "#C0C0C0", min: 1500, max: 3000, next: "Gold" },
-  Gold: { color: "#F9A826", min: 3000, max: 5000, next: "Platinum" },
-  Platinum: { color: "#55D688", min: 5000, max: 10000, next: "Diamond" },
+  Bronze: { color: "#CD7F32", min: 0, max: 500, next: "Silver" },
+  Silver: { color: "#C0C0C0", min: 500, max: 1000, next: "Gold" },
+  Gold: { color: "#F9A826", min: 1000, max: 2000, next: "Platinum" },
+  Platinum: { color: "#55D688", min: 2000, max: 4000, next: "Diamond" },
 };
 
 export default function Dashboard() {
