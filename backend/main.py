@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import load_config
 from app.db.session import get_db_session
+from app.db.init_db import init_db
 
 from app.api.auth import router as auth_router
 from app.api.footprint import router as footprint_router
@@ -16,7 +18,17 @@ from app.api.environment import router as environment_router
 from app.api.biomass import router as biomass_router
 from app.api.ai import router as ai_router
 
-app = FastAPI(title="Biome API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize DB and Seed data
+    try:
+        await init_db()
+    except Exception as e:
+        print(f"Error during DB initialization: {e}")
+    yield
+    # Shutdown logic (if any) could go here
+
+app = FastAPI(title="Biome API", lifespan=lifespan)
 config = load_config()
 
 # CORS
