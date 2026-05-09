@@ -7,7 +7,7 @@ import { Globe, Wind, Info, MapPin, Zap, Brain, TrendingUp, X } from "lucide-rea
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-import { aiApi } from "@/lib/api";
+import { aiApi, envApi } from "@/lib/api";
 
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
   ssr: false,
