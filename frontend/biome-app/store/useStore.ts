@@ -190,14 +190,24 @@ export const useEcoStore = create<EcoStore>()(
       },
 
       toggleChallenge: async (id) => {
+        const previousChallenges = [...get().challenges];
+        
+        // Optimistic update
+        set((state) => ({
+          challenges: state.challenges.map(c => 
+            c.id === id ? { ...c, joined: !c.joined, participants: c.joined ? c.participants - 1 : c.participants + 1 } : c
+          )
+        }));
+
         try {
-          const challenge = get().challenges.find(c => c.id === id);
+          const challenge = previousChallenges.find(c => c.id === id);
           if (challenge?.joined) {
             await challengesApi.leave(id.toString());
           } else {
             await challengesApi.join(id.toString());
           }
-          // Only refresh challenges
+          
+          // Sync with backend to ensure data consistency
           const allChallenges = await challengesApi.getAll();
           set({
             challenges: allChallenges.map((c: any) => ({
@@ -210,6 +220,8 @@ export const useEcoStore = create<EcoStore>()(
             })),
           });
         } catch (error) {
+          // Rollback on failure
+          set({ challenges: previousChallenges });
           console.error("Failed to toggle challenge:", error);
         }
       },

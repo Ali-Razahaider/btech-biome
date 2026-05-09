@@ -99,40 +99,57 @@ export default function Dashboard() {
             </h3>
           </div>
           
-          <div className="w-full h-48 relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={gaugeData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  startAngle={180}
-                  endAngle={0}
-                  paddingAngle={0}
-                  dataKey="value"
-                >
-                  <Cell fill="url(#gaugeGradient)" stroke="none" />
-                  <Cell fill="#E2E8F0" stroke="none" />
-                </Pie>
-                <defs>
-                  <linearGradient id="gaugeGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#F9A826" />
-                    <stop offset="100%" stopColor="#55D688" />
-                  </linearGradient>
-                </defs>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
-              <span className="text-5xl font-black text-header leading-none">{user.carbonScore}</span>
-              <span className="text-xs font-bold text-foreground/40 uppercase mt-1">Excellent</span>
+          {user.carbonScore > 0 ? (
+            <>
+              <div className="w-full h-48 relative mt-8">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={gaugeData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      startAngle={180}
+                      endAngle={0}
+                      paddingAngle={0}
+                      dataKey="value"
+                    >
+                      <Cell fill="url(#gaugeGradient)" stroke="none" />
+                      <Cell fill="#E2E8F0" stroke="none" />
+                    </Pie>
+                    <defs>
+                      <linearGradient id="gaugeGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#F9A826" />
+                        <stop offset="100%" stopColor="#55D688" />
+                      </linearGradient>
+                    </defs>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+                  <span className="text-5xl font-black text-header leading-none">{user.carbonScore}</span>
+                  <span className="text-xs font-bold text-foreground/40 uppercase mt-1">
+                    {user.carbonScore >= 80 ? "Excellent" : user.carbonScore >= 50 ? "Good" : "Needs Work"}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4 flex items-center gap-2 text-green font-bold text-sm bg-green/10 px-4 py-2 rounded-full">
+                <TrendingUp size={16} /> Track your progress
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center mt-12 px-4">
+              <div className="h-16 w-16 bg-black/5 rounded-full flex items-center justify-center text-foreground/40 mb-4">
+                <Leaf size={32} />
+              </div>
+              <h4 className="text-lg font-bold text-header mb-2">No Score Yet</h4>
+              <p className="text-sm text-foreground/60 mb-6">Complete your carbon audit to unlock your personalized Eco-Score.</p>
+              <Link href="/calculator" className="btn-primary text-sm px-6 py-2 w-full max-w-[200px]">
+                Calculate Now
+              </Link>
             </div>
-          </div>
-          
-          <div className="mt-4 flex items-center gap-2 text-green font-bold text-sm bg-green/10 px-4 py-2 rounded-full">
-            <TrendingUp size={16} /> +12% from last week
-          </div>
+          )}
         </motion.div>
 
         {/* Tier Progression */}

@@ -18,6 +18,7 @@ export default function MapPage() {
   const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend } = useEcoStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -32,7 +33,9 @@ export default function MapPage() {
   const handleAnalyze = async () => {
     if (!selectedZone) return;
     setIsAnalyzing(true);
-    setAnalysisResult(null); // Clear previous
+    setAnalysisError(null);
+    setAnalysisResult(null);
+    
     try {
       const result = await aiApi.analyzeBiomass({
         lat: selectedZone.coords[0],
@@ -41,10 +44,12 @@ export default function MapPage() {
         aqi: aqi?.value || 0
       });
       setAnalysisResult(result);
-    } catch (e) {
+    } catch (e: any) {
       console.error("AI Analysis failed", e);
+      setAnalysisError(e.response?.data?.detail || "AI Analysis failed. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
     }
-    setIsAnalyzing(false);
   };
 
   useEffect(() => {
@@ -114,7 +119,7 @@ export default function MapPage() {
                   <h2 className="text-2xl font-black text-header mb-1">{selectedZone.name}</h2>
                   <p className="text-foreground/60 font-medium mb-8">AI Feasibility Assessment</p>
 
-                  {isAnalyzing || !analysisResult ? (
+                  {isAnalyzing ? (
                     <div className="py-20 flex flex-col items-center justify-center text-center">
                        <motion.div 
                         animate={{ rotate: 360 }}
@@ -124,6 +129,28 @@ export default function MapPage() {
                          <Zap size={48} />
                        </motion.div>
                        <p className="font-bold text-header animate-pulse">Gemini is analyzing crop data...</p>
+                    </div>
+                  ) : analysisError ? (
+                    <div className="py-20 flex flex-col items-center justify-center text-center px-6">
+                      <div className="h-16 w-16 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-6">
+                        <X size={32} />
+                      </div>
+                      <p className="font-bold text-header mb-2">Analysis Failed</p>
+                      <p className="text-sm text-foreground/50 mb-8">{analysisError}</p>
+                      <button 
+                        onClick={handleAnalyze}
+                        className="btn-primary px-8 py-3 bg-purple-600 hover:bg-purple-700"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  ) : !analysisResult ? (
+                    <div className="py-20 flex flex-col items-center justify-center text-center px-6">
+                      <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 mb-6">
+                        <MapPin size={32} />
+                      </div>
+                      <p className="font-bold text-header mb-2">Ready to Analyze</p>
+                      <p className="text-sm text-foreground/50">Click Analyze Site to get started.</p>
                     </div>
                   ) : (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
