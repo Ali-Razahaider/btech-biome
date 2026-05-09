@@ -20,7 +20,7 @@ interface MapProps {
   regionalAQIs?: { city: string; value: number; coords: [number, number] }[];
 }
 
-export default function MapComponent({ center, aqi }: MapProps) {
+export default function MapComponent({ center, aqi, regionalAQIs }: MapProps) {
   const { biomassZones, setSelectedZone } = useEcoStore();
   
   // Safe center fallback for Pakistan (Lahore)
