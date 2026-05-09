@@ -7,10 +7,10 @@ import Image from "next/image";
 
 const BentoFeatures = () => {
   return (
-    <section className="py-24 bg-white" id="features">
+    <section className="py-24 " id="features">
       <div className="container mx-auto px-4 md:px-12">
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-black text-header mb-6">Built for Modern Impact</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-header mb-6">Built for<span className="text-emerald-400"> Modern </span> Impact</h2>
           <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
             Everything you need to make sustainability simple, measurable, and rewarding.
           </p>
