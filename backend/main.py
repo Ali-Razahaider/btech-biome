@@ -4,6 +4,11 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from app.core.config import load_config
 from app.db.session import get_db_session
@@ -34,7 +39,11 @@ config = load_config()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://btech-biome-5v9c.vercel.app",
+        "*" # Fallback
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

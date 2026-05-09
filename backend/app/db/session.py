@@ -33,8 +33,12 @@ def create_engine() -> AsyncEngine:
     connect_args = {}
     
     if os.environ.get("RENDER") or "render" in os.environ.get("HOSTNAME", "").lower():
-        # asyncpg works best with ssl=True for default production SSL
-        connect_args["ssl"] = True 
+        import ssl
+        # Create an SSL context that allows self-signed certs (common in internal cloud networking)
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        connect_args["ssl"] = ctx
 
     return create_async_engine(
         database_url, 
