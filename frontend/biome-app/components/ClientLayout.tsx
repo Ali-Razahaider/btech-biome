@@ -43,7 +43,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         isLandingPage ? "pt-20" : isAuthPage ? "" : "md:pl-72 pt-4 md:pt-8"
       )}>
         {!isPublicPage ? (
-          <div className="max-w-7xl mx-auto p-4 md:p-8">
+          <div className="max-w-7xl mx-auto py-4 px-0 md:p-8">
             {children}
           </div>
         ) : (

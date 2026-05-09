@@ -8,14 +8,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 import { aiApi, envApi } from "@/lib/api";
+import { Skeleton, SkeletonAQICard } from "@/components/Skeleton";
 
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-black/5 animate-pulse rounded-[2rem]" />
+  loading: () => (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-4 bg-green/5 rounded-[2rem]">
+      <div className="skeleton h-full w-full rounded-[2rem] min-h-[600px]" />
+    </div>
+  )
 });
 
 export default function MapPage() {
-  const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend } = useEcoStore();
+  const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend, isLoading } = useEcoStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -224,17 +229,28 @@ export default function MapPage() {
               <Wind className="text-green" size={20} /> Air Quality
             </h3>
             <div className="text-center mb-6">
-              <p className="text-5xl font-black text-header mb-1">{aqi?.value || "--"}</p>
+              {isLoading ? (
+                <Skeleton className="h-16 w-24 mx-auto mb-1" />
+              ) : (
+                <p className="text-5xl font-black text-header mb-1">{aqi?.value || "--"}</p>
+              )}
               <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">AQI Score</p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-foreground/40">Status</span>
+                {isLoading ? (
+                  <Skeleton className="h-3 w-16" />
+                ) : (
                 <span className={aqi?.value && aqi.value > 150 ? "text-red-500" : "text-green"}>
                   {aqi?.status || "Loading..."}
                 </span>
+                )}
               </div>
               <div className="h-2 bg-black/5 rounded-full overflow-hidden">
+                {isLoading ? (
+                  <div className="skeleton h-full w-full rounded-full" />
+                ) : (
                 <div 
                   className={cn(
                     "h-full transition-all duration-1000",
@@ -242,6 +258,7 @@ export default function MapPage() {
                   )} 
                   style={{ width: `${Math.min(100, (aqi?.value || 0) / 2)}%` }} 
                 />
+                )}
               </div>
             </div>
           </div>

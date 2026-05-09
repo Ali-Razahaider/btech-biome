@@ -12,7 +12,8 @@ import {
   User,
   Settings,
   LogOut,
-  Leaf
+  Leaf,
+  Globe
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,14 @@ export default function Sidebar() {
               <div className="h-full bg-orange rounded-full" style={{ width: '65%' }}></div>
             </div>
           </div>
+
+          <Link 
+            href="/"
+            className="flex w-full items-center gap-4 rounded-2xl px-5 py-4 text-foreground/60 hover:bg-black/5 hover:text-header transition-all duration-300 group"
+          >
+            <Globe size={22} className="group-hover:-translate-x-1 transition-transform" />
+            <span className="text-[15px] font-bold">Back to Website</span>
+          </Link>
 
           <button 
             onClick={handleSignOut}

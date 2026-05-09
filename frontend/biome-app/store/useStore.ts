@@ -65,6 +65,7 @@ interface EcoStore {
   insights: string[];
   weeklyPlan: any[];
   _synced: boolean;
+  isLoading: boolean;
   
   // Actions
   addPoints: (pts: number) => void;
@@ -109,6 +110,7 @@ export const useEcoStore = create<EcoStore>()(
       insights: [],
       weeklyPlan: [],
       _synced: false,
+      isLoading: true,
 
       setSelectedZone: (zone) => set({ selectedZone: zone }),
 
@@ -263,6 +265,7 @@ export const useEcoStore = create<EcoStore>()(
       },
 
       syncWithBackend: async () => {
+        set({ isLoading: true });
         try {
           // 0. Pre-flight check: Is the user logged in?
           const { data: { session } } = await supabase.auth.getSession();
@@ -340,7 +343,7 @@ export const useEcoStore = create<EcoStore>()(
             });
           }
 
-          set(updates);
+          set({ ...updates, isLoading: false });
 
           // 3. Fetch footprint score (non-blocking)
           try {
@@ -367,6 +370,7 @@ export const useEcoStore = create<EcoStore>()(
           }
         } catch (error) {
           console.error("Store sync critical failure:", error);
+          set({ isLoading: false });
         }
       }
     }),
