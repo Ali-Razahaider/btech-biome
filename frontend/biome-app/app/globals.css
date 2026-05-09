@@ -28,6 +28,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (max-width: 768px) {
+  html {
+    font-size: 80%;
+  }
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-header);
   font-weight: 700;
@@ -43,10 +49,16 @@ h1, h2, h3, h4, h5, h6 {
 .bento-card {
   background: var(--bg-card);
   border-radius: var(--radius-bento);
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: var(--shadow-organic);
   border: 1px solid rgba(0, 0, 0, 0.03);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .bento-card {
+    padding: 1.5rem;
+  }
 }
 
 .bento-card:hover {
@@ -124,6 +136,23 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* ─── Skeleton loader ────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(85, 214, 136, 0.06) 25%,
+    rgba(85, 214, 136, 0.14) 50%,
+    rgba(85, 214, 136, 0.06) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }
 
 ::selection {

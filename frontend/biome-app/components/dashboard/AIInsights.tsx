@@ -5,13 +5,14 @@ import { motion } from "framer-motion";
 import { Brain, Sparkles, ArrowRight, Lightbulb, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEcoStore } from "@/store/useStore";
+import { SkeletonInsightRow } from "@/components/Skeleton";
 
 interface AIInsightsProps {
   insights: string[];
 }
 
 export default function AIInsights({ insights }: AIInsightsProps) {
-  const { user } = useEcoStore();
+  const { user, isLoading } = useEcoStore();
   
   const hasInsights = insights.length > 0;
 
@@ -19,7 +20,7 @@ export default function AIInsights({ insights }: AIInsightsProps) {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bento-card bg-gradient-to-br from-purple-50 to-white border-purple-100"
+      className="bento-card lg:col-span-3 bg-linear-to-br from-purple-50 to-white border-purple-100"
     >
       <div className="flex justify-between items-start mb-6">
         <div>
@@ -34,7 +35,13 @@ export default function AIInsights({ insights }: AIInsightsProps) {
       </div>
 
       <div className="space-y-4">
-        {hasInsights ? (
+        {isLoading ? (
+          <>
+            <SkeletonInsightRow />
+            <SkeletonInsightRow />
+            <SkeletonInsightRow />
+          </>
+        ) : hasInsights ? (
           insights.map((insight, index) => (
             <motion.div 
               key={index}

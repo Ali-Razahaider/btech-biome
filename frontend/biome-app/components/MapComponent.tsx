@@ -20,7 +20,7 @@ interface MapProps {
   regionalAQIs?: { city: string; value: number; coords: [number, number] }[];
 }
 
-export default function MapComponent({ center, aqi }: MapProps) {
+export default function MapComponent({ center, aqi, regionalAQIs }: MapProps) {
   const { biomassZones, setSelectedZone } = useEcoStore();
   
   // Safe center fallback for Pakistan (Lahore)
@@ -73,7 +73,7 @@ export default function MapComponent({ center, aqi }: MapProps) {
             position={item.coords} 
             icon={L.divIcon({
               className: "custom-div-icon",
-              html: `<div style="background-color: ${getAQIColor(item.value)}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3); display: flex; items-center; justify-center; color: white; font-size: 8px; font-weight: 900;">${item.value}</div>`,
+              html: `<div style="background-color: ${getAQIColor(item.value)}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 900;">${item.value}</div>`,
               iconSize: [24, 24],
               iconAnchor: [12, 12],
             })}
@@ -110,7 +110,7 @@ export default function MapComponent({ center, aqi }: MapProps) {
               position={zone.coords} 
               icon={L.divIcon({
                 className: "custom-div-icon",
-                html: `<div style="background-color: ${getPotentialColor(zone.potential)}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(0,0,0,0.4); display: flex; align-items: center; justify-center;"></div>`,
+                html: `<div style="background-color: ${getPotentialColor(zone.potential)}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;"></div>`,
                 iconSize: [16, 16],
                 iconAnchor: [8, 8],
               })}

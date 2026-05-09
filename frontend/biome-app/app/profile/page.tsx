@@ -15,15 +15,15 @@ import {
   Trophy,
   Leaf,
   Globe,
-  Loader2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
+import { Skeleton, SkeletonProfileCard } from "@/components/Skeleton";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useEcoStore();
+  const { user, updateProfile, calculateTier, syncWithBackend } = useEcoStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +32,9 @@ export default function ProfilePage() {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         
         if (authUser) {
+          // First sync with backend to ensure data is up to date
+          await syncWithBackend();
+          
           const { data, error } = await supabase
             .from("profiles")
             .select("*")
@@ -40,13 +43,16 @@ export default function ProfilePage() {
 
           if (data && !error) {
             updateProfile({
-              firstName: data.first_name,
-              lastName: data.last_name,
-              name: `${data.first_name} ${data.last_name}`,
+              firstName: data.first_name || "",
+              lastName: data.last_name || "",
+              name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || data.email?.split("@")[0] || "User",
               email: data.email,
-              gender: data.gender,
-              city: data.city,
-              country: data.country,
+              gender: data.gender || "Not Specified",
+              city: data.city || "Not Specified",
+              country: data.country || "Not Specified",
+              points: data.eco_points || 0,
+              streak: data.streak || 0,
+              tier: calculateTier(data.eco_points || 0),
             });
           }
         }
@@ -58,7 +64,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [updateProfile]);
+  }, [updateProfile, calculateTier, syncWithBackend]);
 
   const achievements = [
     { name: "Pioneer", date: "Joined April 2026", icon: Shield, color: "text-green bg-green/10" },
@@ -68,8 +74,54 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] w-full items-center justify-center">
-        <Loader2 className="animate-spin text-green" size={40} />
+      <div className="max-w-4xl mx-auto space-y-12">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-9 w-44" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-12 w-12 rounded-2xl" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="md:col-span-1 space-y-6">
+            <SkeletonProfileCard />
+            <div className="bento-card space-y-3">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-2 w-full rounded-full" />
+            </div>
+          </div>
+          <div className="md:col-span-2 space-y-8">
+            <div className="bento-card space-y-4">
+              <Skeleton className="h-6 w-40 mb-4" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-black/5">
+                    <Skeleton className="h-12 w-12 rounded-xl shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="bento-card space-y-3">
+                <Skeleton className="h-12 w-12 rounded-2xl" />
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-10 w-40" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+              <div className="bento-card space-y-3">
+                <Skeleton className="h-12 w-12 rounded-2xl" />
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-10 w-40" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -98,13 +150,13 @@ export default function ProfilePage() {
           <div className="bento-card flex flex-col items-center text-center p-8">
             <div className="relative mb-6">
               <div className="h-24 w-24 rounded-full bg-green/20 flex items-center justify-center text-4xl overflow-hidden border-4 border-white shadow-xl">
-                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.firstName}`} alt="avatar" />
+                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email || user.firstName || "user"}`} alt="avatar" />
               </div>
               <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-xl shadow-lg border border-black/5">
                 <Shield className="text-green" size={20} />
               </div>
             </div>
-            <h2 className="text-2xl font-black text-header mb-1">{user.firstName} {user.lastName}</h2>
+            <h2 className="text-2xl font-black text-header mb-1">{user.name}</h2>
             <p className="text-sm font-bold text-green uppercase tracking-widest mb-6">{user.tier} Guardian</p>
             
             <div className="w-full space-y-3">
@@ -118,7 +170,11 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 text-left">
                 <MapPin size={18} className="text-foreground/40 shrink-0" />
-                <span className="text-sm font-medium text-header">{user.city}, {user.country}</span>
+                <span className="text-sm font-medium text-header">
+                  {user.city && user.country && user.city !== "Not Specified" 
+                    ? `${user.city}, ${user.country}` 
+                    : user.city || user.country || "Location Not Set"}
+                </span>
               </div>
             </div>
 
@@ -181,7 +237,7 @@ export default function ProfilePage() {
                 <Award size={24} />
               </div>
               <h3 className="text-xl font-bold">Points Rank</h3>
-              <p className="text-4xl font-black text-header">#1,240</p>
+              <p className="text-4xl font-black text-header">#{user.globalRank ? user.globalRank.toLocaleString() : "---"}</p>
               <p className="text-xs text-foreground/60 font-medium">You are in the <span className="text-orange font-bold">top 12%</span> of all biome users.</p>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Calendar, CheckCircle2, Zap, ArrowRight, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEcoStore } from "@/store/useStore";
+import { SkeletonDayCard } from "@/components/Skeleton";
 
 interface PlanItem {
   day: number;
@@ -18,7 +19,7 @@ interface WeeklyPlanProps {
 }
 
 export default function WeeklyPlan({ plan }: WeeklyPlanProps) {
-  const { user } = useEcoStore();
+  const { user, isLoading } = useEcoStore();
   
   const hasPlan = plan && plan.length > 0;
 
@@ -45,7 +46,9 @@ export default function WeeklyPlan({ plan }: WeeklyPlanProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-        {hasPlan ? (
+        {isLoading ? (
+          Array.from({ length: 7 }).map((_, i) => <SkeletonDayCard key={i} />)
+        ) : hasPlan ? (
           plan.map((item, index) => (
             <motion.div
               key={index}

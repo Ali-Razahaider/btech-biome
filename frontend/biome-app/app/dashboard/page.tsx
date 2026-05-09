@@ -13,7 +13,8 @@ import {
   Activity,
   ArrowUpRight,
   ShieldCheck,
-  Calendar
+  Calendar,
+  Wind
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
@@ -23,6 +24,7 @@ import Link from "next/link";
 import LogActionModal from "@/components/dashboard/LogActionModal";
 import AIInsights from "@/components/dashboard/AIInsights";
 import WeeklyPlan from "@/components/dashboard/WeeklyPlan";
+import { Skeleton, SkeletonStatCard, SkeletonActionRow } from "@/components/Skeleton";
 
 const TIER_CONFIG = {
   Bronze: { color: "#CD7F32", min: 0, max: 1500, next: "Silver" },
@@ -33,7 +35,7 @@ const TIER_CONFIG = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, actions, syncWithBackend, challenges, toggleChallenge, insights, weeklyPlan } = useEcoStore();
+  const { user, actions, syncWithBackend, challenges, toggleChallenge, insights, weeklyPlan, isLoading, aqi, fetchAQI } = useEcoStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export default function Dashboard() {
         router.push("/auth/login");
       } else {
         syncWithBackend();
+        fetchAQI(useEcoStore.getState().user.city);
       }
     };
     checkUser();
@@ -65,14 +68,33 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl font-extrabold text-header mb-1">Impact Hub</h1>
-          <p className="text-foreground/60 font-medium italic">Welcome back, {user.name}. Ready for a greener day?</p>
+          {isLoading
+            ? <Skeleton className="h-4 w-56 mt-1" />
+            : <p className="text-foreground/60 font-medium italic">Welcome back, {user.name}. Ready for a greener day?</p>
+          }
         </div>
         <div className="flex items-center gap-4">
+          {aqi && (
+            <div className={`px-6 py-3 rounded-2xl flex items-center gap-3 border shadow-sm ${
+              aqi.status === "Good" ? "bg-green/10 border-green/20 shadow-green/10 text-green" : 
+              aqi.status === "Moderate" ? "bg-yellow-500/10 border-yellow-500/20 shadow-yellow-500/10 text-yellow-600" : 
+              "bg-red-500/10 border-red-500/20 shadow-red-500/10 text-red-500"
+            }`}>
+              <Wind className="animate-pulse" size={24} />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider">{aqi.city} AQI</p>
+                <p className="font-bold text-header text-xl">{aqi.value} <span className="text-xs font-semibold">({aqi.status})</span></p>
+              </div>
+            </div>
+          )}
           <div className="bg-orange/10 px-6 py-3 rounded-2xl flex items-center gap-3 border border-orange/20 shadow-sm shadow-orange/10">
             <Flame className="text-orange animate-pulse" size={24} />
             <div>
               <p className="text-[10px] font-bold text-orange uppercase tracking-wider">Streak</p>
-              <p className="font-bold text-header text-xl">{user.streak} Days</p>
+              {isLoading
+                ? <Skeleton className="h-6 w-16 mt-1" />
+                : <p className="font-bold text-header text-xl">{user.streak} Days</p>
+              }
             </div>
           </div>
           <motion.button 
@@ -167,7 +189,10 @@ export default function Dashboard() {
               <p className="text-foreground/60 text-sm font-medium">You&apos;re doing great! Keep going to reach Silver.</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-black text-header">{user.points.toLocaleString()}</p>
+              {isLoading
+                ? <Skeleton className="h-8 w-24 ml-auto" />
+                : <p className="text-3xl font-black text-header">{user.points.toLocaleString()}</p>
+              }
               <p className="text-xs font-bold text-foreground/40 uppercase">Total Points</p>
             </div>
           </div>
@@ -202,26 +227,33 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white border border-black/5 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
-                <div className="h-10 w-10 rounded-xl bg-green/10 flex items-center justify-center text-green">
-                  <Trophy size={20} />
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <SkeletonStatCard />
+                  <SkeletonStatCard />
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold text-foreground/40 uppercase">Global Rank</p>
-                  <p className="font-bold text-header text-sm">#{user.globalRank || "---"}</p>
+              ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white border border-black/5 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-green/10 flex items-center justify-center text-green">
+                    <Trophy size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-foreground/40 uppercase">Global Rank</p>
+                    <p className="font-bold text-header text-sm">#{user.globalRank || "---"}</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-black/5 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange">
+                    <Activity size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-foreground/40 uppercase">Actions Logged</p>
+                    <p className="font-bold text-header text-sm">{actions.length}</p>
+                  </div>
                 </div>
               </div>
-              <div className="bg-white border border-black/5 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
-                <div className="h-10 w-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange">
-                  <Activity size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-foreground/40 uppercase">Actions Logged</p>
-                  <p className="font-bold text-header text-sm">{actions.length}</p>
-                </div>
-              </div>
-            </div>
+              )}
           </div>
         </motion.div>
 
@@ -248,23 +280,33 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-3">
-            {actions.slice(0, 3).map((action) => (
-              <div key={action.id} className="flex items-center justify-between p-4 rounded-2xl bg-white border border-black/5 shadow-sm hover:border-green/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-green/10 flex items-center justify-center text-green">
-                    <Leaf size={24} />
+            {isLoading ? (
+              <>
+                <SkeletonActionRow />
+                <SkeletonActionRow />
+                <SkeletonActionRow />
+              </>
+            ) : actions.length > 0 ? (
+              actions.slice(0, 3).map((action) => (
+                <div key={action.id} className="flex items-center justify-between p-4 rounded-2xl bg-white border border-black/5 shadow-sm hover:border-green/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-green/10 flex items-center justify-center text-green">
+                      <Leaf size={24} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-header">{action.title}</p>
+                      <p className="text-xs text-foreground/60 font-medium">{new Date(action.timestamp).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-header">{action.title}</p>
-                    <p className="text-xs text-foreground/60 font-medium">{new Date(action.timestamp).toLocaleDateString()}</p>
+                  <div className="text-right">
+                    <p className="font-black text-green">+{action.points} pts</p>
+                    <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-wider">{action.type}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-black text-green">+{action.points} pts</p>
-                  <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-wider">{action.type}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="py-10 text-center text-foreground/40 text-sm">No actions yet. Log your first eco-action!</div>
+            )}
           </div>
         </motion.div>
 

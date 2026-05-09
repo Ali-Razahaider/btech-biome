@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Leaf, Bike, Zap, Trash2, CheckCircle2 } from "lucide-react";
 import { useEcoStore } from "@/store/useStore";
 
+import toast from "react-hot-toast";
+
 interface LogActionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,6 +29,11 @@ export default function LogActionModal({ isOpen, onClose }: LogActionModalProps)
       description: action.title,
       points: action.points,
     });
+    
+    toast.success(`Points earned! +${action.points} pts`, {
+      icon: '🌱',
+    });
+
     setSuccess(true);
     setTimeout(() => {
       setSuccess(false);
@@ -52,7 +59,7 @@ export default function LogActionModal({ isOpen, onClose }: LogActionModalProps)
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl overflow-hidden p-8"
           >
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 ">
               <h2 className="text-2xl font-black text-header">Log Eco-Action</h2>
               <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <X size={24} />
@@ -77,7 +84,7 @@ export default function LogActionModal({ isOpen, onClose }: LogActionModalProps)
                   <button
                     key={action.id}
                     onClick={() => handleLog(action)}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 hover:border-green/50 hover:shadow-lg transition-all group"
+                    className="flex items-center cursor-pointer hover:text-green justify-between p-4 rounded-2xl bg-white border border-slate-100 hover:border-green/50 hover:shadow-lg transition-all group"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-xl ${action.bg} ${action.color} flex items-center justify-center`}>
