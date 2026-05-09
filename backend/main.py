@@ -40,7 +40,7 @@ app.include_router(footprint_router, prefix="/api/footprint", tags=["footprint"]
 app.include_router(eco_actions_router, prefix="/api/actions", tags=["actions"])
 app.include_router(challenges_router, prefix="/api/challenges", tags=["challenges"])
 app.include_router(leaderboard_router, prefix="/api/leaderboard", tags=["leaderboard"])
-app.include_router(environment_router, prefix="/api/environment", tags=["environment"])
+app.include_router(environment_router, prefix="/api/env", tags=["environment"])
 app.include_router(biomass_router, prefix="/api/biomass", tags=["biomass"])
 app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 
