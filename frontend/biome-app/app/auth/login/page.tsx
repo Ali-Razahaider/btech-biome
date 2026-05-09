@@ -37,7 +37,7 @@ export default function LoginPage() {
         console.error("Login sync failed:", err);
       }
       toast.success("Welcome back to Biome!");
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     }
   };
 
