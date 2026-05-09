@@ -1,5 +1,6 @@
-from datetime import date, timedelta
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date, datetime, timedelta
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,13 +61,22 @@ async def log_action(
 @router.get("/", response_model=list[EcoActionRead])
 @router.get("/recent", response_model=list[EcoActionRead])
 async def get_actions(
+    cursor: Optional[datetime] = Query(None, description="Cursor for pagination (ISO datetime string)"),
+    limit: int = Query(20, le=100),
     db: AsyncSession = Depends(get_db_session),
     current_user: dict = Depends(get_current_user),
 ):
     user_id = current_user.get("sub")
-    result = await db.execute(
+    
+    stmt = (
         select(EcoAction)
         .where(EcoAction.user_id == user_id)
         .order_by(EcoAction.logged_at.desc())
+        .limit(limit)
     )
+    
+    if cursor:
+        stmt = stmt.where(EcoAction.logged_at < cursor)
+        
+    result = await db.execute(stmt)
     return result.scalars().all()

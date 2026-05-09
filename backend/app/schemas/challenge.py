@@ -9,7 +9,8 @@ class ChallengeBase(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
     is_active: bool = True
-
+class ChallengeCreate(ChallengeBase):
+    pass
 
 class ChallengeRead(ChallengeBase):
     id: str

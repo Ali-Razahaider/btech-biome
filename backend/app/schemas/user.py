@@ -25,3 +25,18 @@ class UserRead(UserBase):
 class UserUpdate(BaseModel):
     city: str | None = None
     habits: list[str] | None = None
+
+
+class UserRegister(UserBase):
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserRead

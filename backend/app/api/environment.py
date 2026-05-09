@@ -12,7 +12,7 @@ _AQI_CACHE = {}
 CACHE_TTL = 600 # 10 minutes
 
 
-@router.get("/")
+@router.get("/airquality")
 async def get_environment_data(
     city: str = Query(..., description="City name (e.g., Lahore)"),
 ):

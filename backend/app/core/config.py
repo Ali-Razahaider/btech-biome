@@ -48,4 +48,5 @@ def load_config() -> ConfigDict:
         "supabase_jwt_audience": os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated"),
         "waqi_token": os.getenv("WAQI_TOKEN", ""),
         "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
+        "jwt_secret_key": os.getenv("JWT_SECRET_KEY", "hackathon-secret-key-fallback"),
     }
