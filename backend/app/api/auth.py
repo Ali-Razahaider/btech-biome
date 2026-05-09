@@ -33,17 +33,17 @@ async def register(
     new_user = User(
         id=str(uuid.uuid4()),
         email=user_data.email,
-        password_hash=get_password_hash(user_data.password),
+        # password_hash=get_password_hash(user_data.password),
         city=user_data.city,
         habits=user_data.habits,
-        role="user", # Hackathon requirement: include role in JWT
+        # role="user",
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
 
     # Generate token
-    access_token = create_access_token(data={"sub": new_user.id, "email": new_user.email, "role": new_user.role})
+    access_token = create_access_token(data={"sub": new_user.id, "email": new_user.email, "role": "user"})
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -59,14 +59,14 @@ async def login(
     result = await db.execute(select(User).where(User.email == login_data.email))
     user = result.scalar_one_or_none()
 
-    if not user or not user.password_hash or not verify_password(login_data.password, user.password_hash):
+    if not user or not verify_password(login_data.password, user.password_hash if hasattr(user, 'password_hash') else None):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token(data={"sub": user.id, "email": user.email, "role": user.role})
+    access_token = create_access_token(data={"sub": user.id, "email": user.email, "role": "user"})
     return {
         "access_token": access_token,
         "token_type": "bearer",

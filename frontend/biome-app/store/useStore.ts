@@ -264,100 +264,109 @@ export const useEcoStore = create<EcoStore>()(
 
       syncWithBackend: async () => {
         try {
-          // 0. Ensure user exists in backend DB (only once per session)
+          // 0. Pre-flight check: Is the user logged in?
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session?.user?.email) return;
+
+          // 1. Ensure user exists in backend DB (only once per session)
           if (!get()._synced) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user?.email) {
-              try {
-                await authApi.sync({ email: session.user.email });
-              } catch (syncErr) {
-                console.warn("Auth sync pre-flight failed:", syncErr);
-              }
+            try {
+              await authApi.sync({ email: session.user.email });
+            } catch (syncErr) {
+              console.warn("Auth sync failed (likely network or pre-flight):", syncErr);
+              // If we can't sync, we might not be able to fetch anything else, 
+              // but we'll try anyway if it's a transient issue.
             }
           }
 
-          // 1. Fetch everything in parallel for speed
-          const [userData, recentActions, allChallenges, zones] = await Promise.all([
+          // 2. Fetch everything with individual error handling to prevent total failure
+          const fetchResults = await Promise.allSettled([
             authApi.getMe(),
             actionsApi.getRecent(),
             challengesApi.getAll(),
-            biomassApi.getZones().catch(() => []),
+            biomassApi.getZones(),
           ]);
 
-          // 2. Fetch footprint score (non-blocking)
-          let score = 0;
+          const [userRes, actionsRes, challengesRes, zonesRes] = fetchResults;
+
+          // Update state only for successful fetches
+          const updates: Partial<EcoStore> = { _synced: true };
+
+          if (userRes.status === 'fulfilled') {
+            const userData = userRes.value;
+            updates.user = {
+              ...get().user,
+              name: userData.email?.split('@')[0] || get().user.name,
+              email: userData.email,
+              city: userData.city || get().user.city,
+              habits: userData.habits || get().user.habits,
+              points: userData.eco_points,
+              streak: userData.streak,
+              tier: get().calculateTier(userData.eco_points),
+            };
+          }
+
+          if (actionsRes.status === 'fulfilled') {
+            updates.actions = actionsRes.value.map((a: any) => ({
+              id: a.id,
+              title: a.description,
+              points: a.points,
+              timestamp: a.logged_at,
+              type: a.category.toLowerCase(),
+            }));
+          }
+
+          if (challengesRes.status === 'fulfilled') {
+            updates.challenges = challengesRes.value.map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              participants: c.participants || Math.floor(Math.random() * 1000) + 100,
+              progress: c.progress || 0,
+              tag: "COMMUNITY",
+              joined: c.joined,
+            }));
+          }
+
+          if (zonesRes.status === 'fulfilled') {
+            updates.biomassZones = zonesRes.value.map((z: any) => {
+              const firstPoint = z.geojson?.geometry?.coordinates?.[0]?.[0] || [74.3, 31.5];
+              return {
+                id: z.id.toString(),
+                name: z.district,
+                coords: [firstPoint[1], firstPoint[0]] as [number, number],
+                potential: z.residue_tonnes_annual > 2000 ? "High" : "Medium",
+                cropType: z.crop_type,
+              };
+            });
+          }
+
+          set(updates);
+
+          // 3. Fetch footprint score (non-blocking)
           try {
             const history = await footprintApi.getHistory();
             if (history && history.length > 0) {
               const latest = history[0];
-              // Convert KG to Tonnes, then multiply by 10 to get a deduction from 100
               const tonnes = latest.total_co2e / 1000;
-              score = Math.max(0, Math.min(100, Math.round(100 - (tonnes * 10))));
+              const score = Math.max(0, Math.min(100, Math.round(100 - (tonnes * 10))));
+              set((state) => ({ user: { ...state.user, carbonScore: score } }));
             }
-          } catch {
-            // No footprint yet — that's fine
+          } catch (e) {
+            console.log("Footprint fetch skipped (likely no data)");
           }
 
-          // 3. Map all data
-          const mappedActions = recentActions.map((a: any) => ({
-            id: a.id,
-            title: a.description,
-            points: a.points,
-            timestamp: a.logged_at,
-            type: a.category.toLowerCase(),
-          }));
-
-          const mappedChallenges = allChallenges.map((c: any) => ({
-            id: c.id,
-            title: c.title,
-            participants: c.participants || Math.floor(Math.random() * 1000) + 100,
-            progress: c.progress || 0,
-            tag: "COMMUNITY",
-            joined: c.joined,
-          }));
-
-          const mappedZones = zones.map((z: any) => {
-            const firstPoint = z.geojson?.geometry?.coordinates?.[0]?.[0] || [74.3, 31.5];
-            return {
-              id: z.id.toString(),
-              name: z.district,
-              coords: [firstPoint[1], firstPoint[0]] as [number, number],
-              potential: z.residue_tonnes_annual > 2000 ? "High" : "Medium",
-              cropType: z.crop_type,
-            };
-          });
-
-          // 4. Single atomic state update
-          set((state) => ({
-            _synced: true,
-            user: {
-              ...state.user,
-              name: userData.email?.split('@')[0] || state.user.name,
-              email: userData.email,
-              city: userData.city || state.user.city,
-              habits: userData.habits || state.user.habits,
-              points: userData.eco_points,
-              streak: userData.streak,
-              tier: get().calculateTier(userData.eco_points),
-              carbonScore: score,
-            },
-            actions: mappedActions,
-            challenges: mappedChallenges,
-            biomassZones: mappedZones,
-          }));
-
-          // 5. Fetch AI data if missing (insights help guide the user)
+          // 4. Fetch AI data if missing
           if (get().insights.length === 0) {
             get().fetchAIInsights();
             get().fetchWeeklyPlan();
           }
 
-          // 6. Fetch leaderboard to get rank
+          // 5. Fetch leaderboard to get rank
           if (!get().user.globalRank) {
             get().fetchLeaderboard();
           }
         } catch (error) {
-          console.error("Store sync failed:", error);
+          console.error("Store sync critical failure:", error);
         }
       }
     }),
