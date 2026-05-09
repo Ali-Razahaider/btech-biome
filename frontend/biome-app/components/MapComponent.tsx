@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -63,45 +64,58 @@ export default function MapComponent({ center, aqi }: MapProps) {
 
         {/* Biomass Zones */}
         {biomassZones.map((zone) => (
-          <Circle 
-            key={zone.id}
-            center={zone.coords} 
-            radius={5000} 
-            eventHandlers={{
-              click: () => setSelectedZone(zone),
-            }}
-            pathOptions={{ 
-              fillColor: getPotentialColor(zone.potential), 
-              fillOpacity: 0.4, 
-              color: getPotentialColor(zone.potential),
-              weight: 2,
-            }} 
-          >
-            <Popup className="custom-popup">
-              <div className="p-2 min-w-[180px]">
-                <h3 className="font-extrabold text-header mb-1">{zone.name}</h3>
-                <p className="text-[10px] font-bold text-foreground/40 uppercase mb-3">Biomass Zone</p>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Potential</span>
-                    <span className="font-bold text-sm" style={{ color: getPotentialColor(zone.potential) }}>{zone.potential}</span>
+          <React.Fragment key={zone.id}>
+            <Circle 
+              center={zone.coords} 
+              radius={15000} 
+              eventHandlers={{
+                click: () => setSelectedZone(zone),
+              }}
+              pathOptions={{ 
+                fillColor: getPotentialColor(zone.potential), 
+                fillOpacity: 0.4, 
+                color: getPotentialColor(zone.potential),
+                weight: 2,
+              }} 
+            />
+            <Marker 
+              position={zone.coords} 
+              icon={L.divIcon({
+                className: "custom-div-icon",
+                html: `<div style="background-color: ${getPotentialColor(zone.potential)}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2);"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6],
+              })}
+              eventHandlers={{
+                click: () => setSelectedZone(zone),
+              }}
+            >
+              <Popup className="custom-popup">
+                <div className="p-2 min-w-[180px]">
+                  <h3 className="font-extrabold text-header mb-1">{zone.name}</h3>
+                  <p className="text-[10px] font-bold text-foreground/40 uppercase mb-3">Biomass Zone</p>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                      <span className="text-[10px] font-bold text-foreground/40 uppercase">Potential</span>
+                      <span className="font-bold text-sm" style={{ color: getPotentialColor(zone.potential) }}>{zone.potential}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                      <span className="text-[10px] font-bold text-foreground/40 uppercase">Crop</span>
+                      <span className="font-bold text-sm text-header">{zone.cropType}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase">Crop</span>
-                    <span className="font-bold text-sm text-header">{zone.cropType}</span>
-                  </div>
+                  
+                  <button 
+                    onClick={() => setSelectedZone(zone)}
+                    className="w-full mt-4 bg-header text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-widest hover:bg-black/80 transition-colors"
+                  >
+                    Analyze Site
+                  </button>
                 </div>
-                
-                <button 
-                  onClick={() => setSelectedZone(zone)}
-                  className="w-full mt-4 bg-header text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-widest hover:bg-black/80 transition-colors"
-                >
-                  Analyze Site
-                </button>
-              </div>
-            </Popup>
-          </Circle>
+              </Popup>
+            </Marker>
+          </React.Fragment>
         ))}
       </MapContainer>
 

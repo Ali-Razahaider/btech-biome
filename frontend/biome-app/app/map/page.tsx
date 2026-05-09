@@ -15,16 +15,19 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 });
 
 export default function MapPage() {
-  const { user, aqi, fetchAQI, selectedZone, setSelectedZone } = useEcoStore();
+  const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend } = useEcoStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
-      await fetchAQI(user.city || "Lahore");
+      await Promise.all([
+        syncWithBackend(),
+        fetchAQI(user.city || "Lahore")
+      ]);
     };
     load();
-  }, [user.city, fetchAQI]);
+  }, [user.city, fetchAQI, syncWithBackend]);
 
   const handleAnalyze = async () => {
     if (!selectedZone) return;
