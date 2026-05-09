@@ -21,6 +21,8 @@ import { useEcoStore } from "@/store/useStore";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import LogActionModal from "@/components/dashboard/LogActionModal";
+import AIInsights from "@/components/dashboard/AIInsights";
+import WeeklyPlan from "@/components/dashboard/WeeklyPlan";
 
 const TIER_CONFIG = {
   Bronze: { color: "#CD7F32", min: 0, max: 1500, next: "Silver" },
@@ -31,7 +33,7 @@ const TIER_CONFIG = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, actions, syncWithBackend, challenges, toggleChallenge } = useEcoStore();
+  const { user, actions, syncWithBackend, challenges, toggleChallenge, insights, weeklyPlan } = useEcoStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -190,7 +192,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-foreground/40 uppercase">Global Rank</p>
-                  <p className="font-bold text-header text-sm">#1,240</p>
+                  <p className="font-bold text-header text-sm">#{user.globalRank || "---"}</p>
                 </div>
               </div>
               <div className="bg-white border border-black/5 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
@@ -205,6 +207,12 @@ export default function Dashboard() {
             </div>
           </div>
         </motion.div>
+
+        {/* AI Sustainability Insights */}
+        <AIInsights insights={insights} />
+
+        {/* Weekly Action Plan */}
+        <WeeklyPlan plan={weeklyPlan} />
 
         {/* Eco-Action Log Preview */}
         <motion.div 

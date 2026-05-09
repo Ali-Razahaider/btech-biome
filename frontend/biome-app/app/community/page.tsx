@@ -15,7 +15,9 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 export default function Community() {
   const { user, challenges, toggleChallenge, aqi, fetchAQI, leaderboard, fetchLeaderboard, syncWithBackend } = useEcoStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<'alltime' | 'weekly' | 'monthly'>('alltime');
   const [isLoadingAQI, setIsLoadingAQI] = useState(false);
+  const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,6 +32,13 @@ export default function Community() {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleFilterChange = async (filter: 'alltime' | 'weekly' | 'monthly') => {
+    setActiveFilter(filter);
+    setIsLoadingLeaderboard(true);
+    await fetchLeaderboard(filter);
+    setIsLoadingLeaderboard(false);
+  };
 
   const displayLeaderboard = leaderboard.map(entry => ({
     ...entry,
@@ -67,10 +76,23 @@ export default function Community() {
             <h3 className="text-xl font-extrabold text-header flex items-center gap-2">
               <Trophy className="text-orange" size={24} /> Top Guardians
             </h3>
-            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Global</span>
+            <div className="flex bg-black/5 p-1 rounded-xl">
+              {(['weekly', 'monthly', 'alltime'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => handleFilterChange(f)}
+                  className={cn(
+                    "text-[8px] font-bold px-2 py-1 rounded-lg uppercase tracking-tighter transition-all",
+                    activeFilter === f ? "bg-white text-header shadow-sm" : "text-foreground/40 hover:text-foreground/60"
+                  )}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-3">
+          <div className={cn("space-y-3 transition-opacity duration-300", isLoadingLeaderboard ? "opacity-50" : "opacity-100")}>
             {displayLeaderboard.map((hero, idx) => (
               <div
                 key={hero.user_id}
