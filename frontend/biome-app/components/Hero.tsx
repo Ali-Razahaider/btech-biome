@@ -6,9 +6,12 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import TextType from "./TextType";
 
+import HeroBackground from "./HeroBackground";
+
 export default function Hero() {
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center pt-32 pb-20">
+    <section className="relative min-h-[80vh] flex items-center justify-center pt-32 pb-20 overflow-hidden">
+      <HeroBackground />
       <div className="relative z-10 w-full text-center px-4 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

@@ -12,11 +12,21 @@ import Footer from "@/components/Footer";
 export default function LandingPage() {
   return (
     <div className="relative overflow-hidden">
-      <Hero />
-      <Stats />
-      <ProblemSection />
-      <SolutionLayers />
-      <BentoFeatures />
+      <section id="hero">
+        <Hero />
+      </section>
+      <section id="impact">
+        <Stats />
+      </section>
+      <section id="challenge">
+        <ProblemSection />
+      </section>
+      <section id="solutions">
+        <SolutionLayers />
+      </section>
+      <section id="features">
+        <BentoFeatures />
+      </section>
       <CTA />
       <Footer />
     </div>
