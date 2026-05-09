@@ -12,7 +12,7 @@ const stats = [
 
 const Stats = () => {
   return (
-    <section className="py-20 bg-background relative z-10">
+    <section className="py-20  relative z-10">
       <div className="w-full px-4 md:px-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, idx) => (

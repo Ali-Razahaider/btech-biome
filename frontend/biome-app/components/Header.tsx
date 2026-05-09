@@ -81,7 +81,7 @@ export default function Header() {
           className={cn(
             "relative flex items-center overflow-hidden transition-colors duration-500",
             isScrolled
-              ? "bg-white/80 backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/5"
+              ? " backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/5"
               : "bg-transparent border-transparent px-12",
           )}
           initial={false}
@@ -258,7 +258,7 @@ export default function Header() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute top-full left-4 right-4 mt-2 bg-white rounded-[24px] p-6 shadow-2xl border border-black/5 overflow-hidden"
+              className="absolute top-full left-4 right-4 mt-2  rounded-[24px] p-6 shadow-2xl border border-black/5 overflow-hidden"
             >
               <div className="flex flex-col gap-1">
                 {authenticatedNavItems.map((item) => (

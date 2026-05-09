@@ -8,7 +8,7 @@ import TextType from "./TextType";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center pt-32 pb-20 bg-white">
+    <section className="relative min-h-[80vh] flex items-center justify-center pt-32 pb-20">
       <div className="relative z-10 w-full text-center px-4 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

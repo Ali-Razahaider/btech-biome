@@ -23,14 +23,15 @@ const BentoFeatures = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="md:col-span-8 md:row-span-2 group relative overflow-hidden rounded-[2.5rem] bg-green p-10 text-white"
+            style={{ boxShadow: "0 8px 40px 0 rgba(85,214,136,0.35), 0 2px 12px 0 rgba(85,214,136,0.18)" }}
           >
             <div className="relative z-10 flex flex-col h-full">
               <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-8">
                 <Calculator size={32} />
               </div>
-              <h3 className="text-4xl font-black mb-4">AI Carbon Calculator</h3>
+              <h3 className="text-4xl text-white! font-black mb-4">AI Carbon Calculator</h3>
               <p className="text-white/80 text-xl max-w-md leading-relaxed mb-auto">
-                Calculate your CO2 footprint with scientific precision and get a personalized reduction plan.
+                Calculate your CO2 footprint with sciAI Carbon Calculatorentific precision and get a personalized reduction plan.
               </p>
               <div className="flex gap-4">
                 <div className="px-6 py-3 rounded-xl bg-white/10 backdrop-blur-sm font-bold">Transport</div>
@@ -50,12 +51,13 @@ const BentoFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
             className="md:col-span-4 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] bg-blue-500 p-8 text-white"
+            style={{ boxShadow: "0 8px 40px 0 rgba(59,130,246,0.35), 0 2px 12px 0 rgba(59,130,246,0.18)" }}
           >
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6">
                 <Map size={24} />
               </div>
-              <h3 className="text-2xl font-bold mb-2">Regional Intelligence</h3>
+              <h3 className="text-2xl text-white! font-bold mb-2">Regional Intelligence</h3>
               <p className="text-white/80">Interactive map showing live AQI and biomass potential.</p>
             </div>
             <div className="absolute top-0 right-0 p-6 opacity-30">
@@ -70,12 +72,13 @@ const BentoFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
             className="md:col-span-4 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] bg-orange p-8 text-white"
+            style={{ boxShadow: "0 8px 40px 0 rgba(249,115,22,0.35), 0 2px 12px 0 rgba(249,115,22,0.18)" }}
           >
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6">
                 <Users size={24} />
               </div>
-              <h3 className="text-2xl font-bold mb-2">Community Action</h3>
+              <h3 className="text-2xl text-white! font-bold mb-2">Community Action</h3>
               <p className="text-white/80">Join missions, track collective impact, and climb leaderboards.</p>
             </div>
             <div className="absolute bottom-0 right-0 p-6 opacity-30">
@@ -90,11 +93,12 @@ const BentoFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
             className="md:col-span-4 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] bg-slate-100 p-8 border border-black/5"
+            style={{ boxShadow: "0 4px 24px 0 rgba(85,214,136,0.15), 0 1px 6px 0 rgba(85,214,136,0.08)" }}
           >
             <div className="w-12 h-12 rounded-xl bg-green/10 text-green flex items-center justify-center mb-6">
               <Brain size={24} />
             </div>
-            <h3 className="text-xl font-bold text-header mb-2">AI Advisor</h3>
+            <h3 className="text-xl   font-bold text-header mb-2">AI Advisor</h3>
             <p className="text-foreground/60 text-sm">Personalized weekly plans powered by Gemini AI.</p>
           </motion.div>
 
@@ -105,6 +109,7 @@ const BentoFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
             className="md:col-span-4 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] bg-slate-100 p-8 border border-black/5"
+            style={{ boxShadow: "0 4px 24px 0 rgba(59,130,246,0.15), 0 1px 6px 0 rgba(59,130,246,0.08)" }}
           >
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-6">
               <TrendingUp size={24} />
@@ -120,6 +125,7 @@ const BentoFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
             className="md:col-span-4 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] bg-slate-100 p-8 border border-black/5"
+            style={{ boxShadow: "0 4px 24px 0 rgba(249,115,22,0.15), 0 1px 6px 0 rgba(249,115,22,0.08)" }}
           >
             <div className="w-12 h-12 rounded-xl bg-orange/10 text-orange flex items-center justify-center mb-6">
               <Zap size={24} />

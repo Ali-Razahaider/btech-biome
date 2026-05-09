@@ -51,7 +51,7 @@ const SolutionLayers = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="relative group p-8 rounded-[2.5rem] bg-white border border-black/5 shadow-sm hover:shadow-xl transition-all"
+              className="relative group p-8 rounded-[2.5rem] border border-black/5 shadow-sm hover:shadow-xl transition-all"
             >
               <div className={`w-14 h-14 rounded-2xl bg-${layer.color}/10 text-${layer.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
                 <layer.icon size={28} />

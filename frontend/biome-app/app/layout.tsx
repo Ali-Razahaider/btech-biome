@@ -29,7 +29,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-full text-foreground relative">
+        <div className="fixed inset-0 -z-10 h-screen w-screen bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_30%,#d8f4e1_100%)]"></div>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
