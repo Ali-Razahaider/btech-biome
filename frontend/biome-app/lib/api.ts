@@ -43,7 +43,7 @@ export const actionsApi = {
 
 export const challengesApi = {
   getAll: async () => {
-    const response = await api.get('/api/challenges');
+    const response = await api.get('/api/challenges/');
     return response.data;
   },
   join: async (challengeId: string) => {
@@ -83,7 +83,7 @@ export const footprintApi = {
 
 export const envApi = {
   getAQI: async (city: string) => {
-    const response = await api.get(`/api/environment/?city=${city}`);
+    const response = await api.get(`/api/env/airquality?city=${city}`);
     return response.data;
   },
 };
