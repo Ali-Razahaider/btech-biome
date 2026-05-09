@@ -22,8 +22,7 @@ const ProblemSection = () => {
             Our Environment is at a <span className="text-red-600">Breaking Point</span>
           </h2>
           <p className="text-xl text-foreground/60 leading-relaxed">
-            Pakistan faces two deeply linked environmental crises that demand immediate action. 
-            From unbreathable air to energy scarcity, the status quo is no longer sustainable.
+            Unbreathable air and energy scarcity are linked crises. It's time to act.
           </p>
         </div>
 
@@ -40,7 +39,7 @@ const ProblemSection = () => {
             </div>
             <h3 className="text-3xl font-bold text-header mb-6">Unbreathable Air</h3>
             <p className="text-lg text-foreground/60 mb-6 leading-relaxed">
-              Lahore consistently ranks among the world's most polluted cities. Millions are exposed to harmful PM2.5 levels daily, primarily due to seasonal crop residue burning.
+              Seasonal crop burning blankets our cities in smog, exposing millions to hazardous PM2.5 levels.
             </p>
             <div className="flex items-center gap-4 text-red-600 font-bold">
               <span className="text-4xl">40M+</span>
@@ -60,7 +59,7 @@ const ProblemSection = () => {
             </div>
             <h3 className="text-3xl font-bold text-header mb-6">Energy Scarcity</h3>
             <p className="text-lg text-foreground/60 mb-6 leading-relaxed">
-              Severe gas shortages push households and farmers to burn wood and coal. We waste millions of tonnes of biomass that could be converted into clean biogas.
+              Gas shortages force reliance on wood and coal, while millions of tonnes of clean biogas potential goes up in smoke.
             </p>
             <div className="flex items-center gap-4 text-orange-600 font-bold">
               <span className="text-4xl">18M</span>

@@ -17,14 +17,14 @@ export default function Hero() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 border border-green/20 text-green text-sm font-medium mb-8">
             <span className="flex h-2 w-2 rounded-full bg-green animate-pulse"></span>
-            Building Pakistan's First Biomass Intelligence Platform
+            Pakistan's AI-Powered Sustainability App
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black text-header mb-6 leading-tight tracking-tight">
-            Healing our <span className="text-green">Biome</span> through <br />
+            Turn Climate Intent into <br />
             <TextType 
               as="span"
-              text={["Action", "Intelligence", "Community"]}
+              text={["Measurable Impact", "Community Action", "AI Intelligence"]}
               className="bg-linear-to-r from-green to-emerald-600 bg-clip-text text-transparent inline-block"
               cursorClassName="text-green"
               typingSpeed={80}
@@ -32,7 +32,7 @@ export default function Hero() {
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/70 mb-10 max-w-3xl mx-auto leading-relaxed">
-            The all-in-one platform for personal footprint tracking, community eco-challenges, and regional biomass intelligence tailored for Pakistan.
+            Track your carbon footprint, join eco-challenges, and map clean energy potential. Real environmental solutions for Pakistan, powered by AI.
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">

@@ -2,8 +2,9 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Brain, Sparkles, ArrowRight, Lightbulb } from "lucide-react";
+import { Brain, Sparkles, ArrowRight, Lightbulb, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEcoStore } from "@/store/useStore";
 
 interface AIInsightsProps {
   insights: string[];

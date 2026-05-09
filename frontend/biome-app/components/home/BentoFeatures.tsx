@@ -12,7 +12,7 @@ const BentoFeatures = () => {
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-black text-header mb-6">Built for Modern Impact</h2>
           <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
-            A comprehensive toolset designed to make sustainability simple, measurable, and rewarding.
+            Everything you need to make sustainability simple, measurable, and rewarding.
           </p>
         </div>
 
@@ -30,7 +30,7 @@ const BentoFeatures = () => {
               </div>
               <h3 className="text-4xl font-black mb-4">AI Carbon Calculator</h3>
               <p className="text-white/80 text-xl max-w-md leading-relaxed mb-auto">
-                Enter your daily habits and let our AI compute your total CO2 equivalent with scientific precision.
+                Calculate your CO2 footprint with scientific precision and get a personalized reduction plan.
               </p>
               <div className="flex gap-4">
                 <div className="px-6 py-3 rounded-xl bg-white/10 backdrop-blur-sm font-bold">Transport</div>
@@ -56,7 +56,7 @@ const BentoFeatures = () => {
                 <Map size={24} />
               </div>
               <h3 className="text-2xl font-bold mb-2">Regional Intelligence</h3>
-              <p className="text-white/80">Live AQI zones and biomass potential mapping.</p>
+              <p className="text-white/80">Interactive map showing live AQI and biomass potential.</p>
             </div>
             <div className="absolute top-0 right-0 p-6 opacity-30">
               <TrendingUp size={100} />
@@ -75,8 +75,8 @@ const BentoFeatures = () => {
               <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6">
                 <Users size={24} />
               </div>
-              <h3 className="text-2xl font-bold mb-2">Community Challenges</h3>
-              <p className="text-white/80">Join collective missions and compete on leaderboards.</p>
+              <h3 className="text-2xl font-bold mb-2">Community Action</h3>
+              <p className="text-white/80">Join missions, track collective impact, and climb leaderboards.</p>
             </div>
             <div className="absolute bottom-0 right-0 p-6 opacity-30">
               <Zap size={80} />
@@ -124,8 +124,8 @@ const BentoFeatures = () => {
             <div className="w-12 h-12 rounded-xl bg-orange/10 text-orange flex items-center justify-center mb-6">
               <Zap size={24} />
             </div>
-            <h3 className="text-xl font-bold text-header mb-2">Eco-Action Log</h3>
-            <p className="text-foreground/60 text-sm">Gamified habit loop with daily streaks and points.</p>
+            <h3 className="text-xl font-bold text-header mb-2">Action Log</h3>
+            <p className="text-foreground/60 text-sm">Build eco-habits with daily streaks and gamified rewards.</p>
           </motion.div>
         </div>
       </div>

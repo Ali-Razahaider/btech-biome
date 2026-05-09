@@ -74,7 +74,7 @@ const Features = () => {
                   ))}
                 </ul>
                 <Link 
-                  href="/auth" 
+                  href="/auth/signup" 
                   className="inline-flex items-center gap-2 text-green font-bold hover:gap-3 transition-all"
                 >
                   Learn more <ArrowRight size={20} />

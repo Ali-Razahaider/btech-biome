@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Calendar, CheckCircle2, Zap, ArrowRight, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEcoStore } from "@/store/useStore";
 
 interface PlanItem {
   day: number;

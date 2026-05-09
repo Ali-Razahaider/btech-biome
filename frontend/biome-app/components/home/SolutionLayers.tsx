@@ -10,7 +10,7 @@ const SolutionLayers = () => {
     {
       title: "Personal Layer",
       subtitle: "Track & Improve",
-      description: "Calculate your carbon footprint and get AI-powered daily action plans to reduce your impact. Gamified streaks keep you motivated every single day.",
+      description: "Calculate your footprint, get AI action plans, and build habits with gamified streaks.",
       icon: User,
       color: "green",
       points: ["AI Carbon Calculator", "Daily Action Log", "Streak Tracking"]
@@ -18,7 +18,7 @@ const SolutionLayers = () => {
     {
       title: "Community Layer",
       subtitle: "Compete & Connect",
-      description: "Join active challenges, climb the regional leaderboard, and see how collective actions from your city are shifting the needle on sustainability.",
+      description: "Join challenges, climb local leaderboards, and drive collective sustainability impact.",
       icon: Users,
       color: "orange",
       points: ["Active Challenges", "Global Leaderboards", "Social Accountability"]
@@ -26,7 +26,7 @@ const SolutionLayers = () => {
     {
       title: "Regional Intelligence",
       subtitle: "Analyze & Act",
-      description: "Our GIS mapping system identifies biomass potential and air quality zones. Analyze any location for biogas feasibility with one click.",
+      description: "Discover clean energy potential with live AQI tracking and AI biomass feasibility mapping.",
       icon: Globe,
       color: "blue",
       points: ["Biomass Potential Map", "AQI Heatmaps", "AI Feasibility Reports"]
