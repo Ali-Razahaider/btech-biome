@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { supabase } from "@/lib/supabase";
-import { authApi, actionsApi, challengesApi, biomassApi, footprintApi, leaderboardApi, envApi } from "@/lib/api";
+import { authApi, actionsApi, challengesApi, biomassApi, footprintApi, leaderboardApi, envApi, aiApi } from "@/lib/api";
 
 interface EcoAction {
   id: string;
@@ -23,6 +23,7 @@ interface UserProfile {
   points: number;
   streak: number;
   carbonScore: number;
+  globalRank: number | null;
   lastLogin: string;
   tier: "Bronze" | "Silver" | "Gold" | "Platinum";
 }
@@ -61,6 +62,8 @@ interface EcoStore {
   aqi: { value: number; status: string; city: string; coords: [number, number] } | null;
   biomassZones: BiomassZone[];
   selectedZone: BiomassZone | null;
+  insights: string[];
+  weeklyPlan: any[];
   _synced: boolean;
   
   // Actions
@@ -74,6 +77,8 @@ interface EcoStore {
   calculateTier: (points: number) => "Bronze" | "Silver" | "Gold" | "Platinum";
   syncWithBackend: () => Promise<void>;
   setSelectedZone: (zone: BiomassZone | null) => void;
+  fetchAIInsights: () => Promise<void>;
+  fetchWeeklyPlan: () => Promise<void>;
 }
 
 export const useEcoStore = create<EcoStore>()(
@@ -91,6 +96,7 @@ export const useEcoStore = create<EcoStore>()(
         points: 0,
         streak: 0,
         carbonScore: 0,
+        globalRank: null,
         lastLogin: new Date().toISOString(),
         tier: "Bronze",
       },
@@ -100,6 +106,8 @@ export const useEcoStore = create<EcoStore>()(
       leaderboard: [],
       selectedZone: null,
       aqi: null,
+      insights: [],
+      weeklyPlan: [],
       _synced: false,
 
       setSelectedZone: (zone) => set({ selectedZone: zone }),
@@ -198,7 +206,7 @@ export const useEcoStore = create<EcoStore>()(
               participants: c.participants || Math.floor(Math.random() * 1000) + 100,
               progress: c.progress || 0,
               tag: "COMMUNITY",
-              joined: c.joined || false,
+              joined: c.joined,
             })),
           });
         } catch (error) {
@@ -228,8 +236,32 @@ export const useEcoStore = create<EcoStore>()(
         try {
           const data = await leaderboardApi.get(filter);
           set({ leaderboard: data });
+          
+          // Update global rank if user is in leaderboard
+          const myRank = data.find((entry: any) => entry.email === get().user.email)?.rank;
+          if (myRank) {
+            set((state) => ({ user: { ...state.user, globalRank: myRank } }));
+          }
         } catch (error) {
           console.error("Failed to fetch leaderboard", error);
+        }
+      },
+
+      fetchAIInsights: async () => {
+        try {
+          const { insights } = await aiApi.getInsights();
+          set({ insights });
+        } catch (error) {
+          console.error("Failed to fetch AI insights", error);
+        }
+      },
+
+      fetchWeeklyPlan: async () => {
+        try {
+          const { plan } = await aiApi.getWeeklyPlan();
+          set({ weeklyPlan: plan });
+        } catch (error) {
+          console.error("Failed to fetch weekly plan", error);
         }
       },
 
@@ -288,16 +320,19 @@ export const useEcoStore = create<EcoStore>()(
             participants: c.participants || Math.floor(Math.random() * 1000) + 100,
             progress: c.progress || 0,
             tag: "COMMUNITY",
-            joined: c.joined || false,
+            joined: c.joined,
           }));
 
-          const mappedZones = zones.map((z: any) => ({
-            id: z.id.toString(),
-            name: z.district,
-            coords: z.geojson?.geometry?.coordinates?.[0]?.[0] || [31.5, 74.3],
-            potential: z.residue_tonnes_annual > 2000 ? "High" : "Medium",
-            cropType: z.crop_type,
-          }));
+          const mappedZones = zones.map((z: any) => {
+            const firstPoint = z.geojson?.geometry?.coordinates?.[0]?.[0] || [74.3, 31.5];
+            return {
+              id: z.id.toString(),
+              name: z.district,
+              coords: [firstPoint[1], firstPoint[0]] as [number, number],
+              potential: z.residue_tonnes_annual > 2000 ? "High" : "Medium",
+              cropType: z.crop_type,
+            };
+          });
 
           // 4. Single atomic state update
           set((state) => ({
@@ -317,6 +352,17 @@ export const useEcoStore = create<EcoStore>()(
             challenges: mappedChallenges,
             biomassZones: mappedZones,
           }));
+
+          // 5. Fetch AI data if missing (insights help guide the user)
+          if (get().insights.length === 0) {
+            get().fetchAIInsights();
+            get().fetchWeeklyPlan();
+          }
+
+          // 6. Fetch leaderboard to get rank
+          if (!get().user.globalRank) {
+            get().fetchLeaderboard();
+          }
         } catch (error) {
           console.error("Store sync failed:", error);
         }

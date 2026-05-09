@@ -14,6 +14,7 @@ class ChallengeBase(BaseModel):
 class ChallengeRead(ChallengeBase):
     id: str
     created_at: datetime
+    joined: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
