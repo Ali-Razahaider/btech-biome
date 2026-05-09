@@ -14,23 +14,34 @@ config = load_config()
 
 
 def create_engine() -> AsyncEngine:
-    database_url = config["database_url"]
+    database_url = config.get("database_url")
+    if not database_url:
+        # Fallback for when env var is missing during build/startup
+        database_url = "postgresql+asyncpg://user:pass@localhost/db"
     
     # Handle Render/Heroku style URLs (postgres -> postgresql+asyncpg)
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql+asyncpg://", 1)
-    elif database_url.startswith("postgresql://"):
+    elif database_url.startswith("postgresql://") and "+asyncpg" not in database_url:
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         
     # SSL config for production (Render/Supabase)
     connect_args = {}
-    if "render" in os.environ.get("HOSTNAME", "").lower() or os.environ.get("RENDER"):
-        connect_args["ssl"] = True
+    
+    # Render and Supabase often need SSL. 
+    # If the URL contains sslmode=disable, we respect it.
+    # Otherwise, if we're on Render, we try to use SSL.
+    if "sslmode=disable" not in database_url:
+        if os.environ.get("RENDER") or "render" in os.environ.get("HOSTNAME", "").lower():
+            connect_args["ssl"] = "require" # asyncpg uses "require" or an SSLContext
+        else:
+            # For other environments like Supabase, "require" is also often needed
+            connect_args["ssl"] = False # Default to False if not sure, but let URL handle it
 
     return create_async_engine(
         database_url, 
         pool_pre_ping=True,
-        connect_args=connect_args if connect_args else {}
+        connect_args=connect_args
     )
 
 
