@@ -20,7 +20,7 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 });
 
 export default function MapPage() {
-  const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend, isLoading } = useEcoStore();
+  const { user, aqi, fetchAQI, selectedZone, setSelectedZone, syncWithBackend, isLoading, biomassZones } = useEcoStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -269,16 +269,36 @@ export default function MapPage() {
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground/60">Solar Output</span>
-                <span className="font-bold text-header">High</span>
+                <span className="text-sm font-medium text-foreground/60">Avg Regional AQI</span>
+                <span className={cn("font-bold", (() => {
+                  const avg = regionalData.length > 0 
+                    ? Math.round(regionalData.reduce((sum: number, r: any) => sum + r.value, 0) / regionalData.length) 
+                    : 0;
+                  return avg > 150 ? "text-red-500" : avg > 100 ? "text-orange" : "text-green";
+                })())}>
+                  {regionalData.length > 0 
+                    ? Math.round(regionalData.reduce((sum: number, r: any) => sum + r.value, 0) / regionalData.length) 
+                    : "--"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground/60">Grid Purity</span>
-                <span className="font-bold text-header">64%</span>
+                <span className="text-sm font-medium text-foreground/60">Air Quality Trend</span>
+                <span className={cn("font-bold", 
+                  aqi?.value && aqi.value > 150 ? "text-red-500" : 
+                  aqi?.value && aqi.value > 100 ? "text-orange" : "text-green"
+                )}>
+                  {aqi?.value 
+                    ? aqi.value <= 50 ? "Good" : aqi.value <= 100 ? "Moderate" : aqi.value <= 150 ? "Unhealthy" : "Hazardous"
+                    : "--"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground/60">Biomass Zones</span>
-                <span className="font-bold text-header">4 Active</span>
+                <span className="font-bold text-header">{biomassZones.length} Active</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground/60">Cities Monitored</span>
+                <span className="font-bold text-header">{regionalData.length + 1}</span>
               </div>
             </div>
           </div>
